@@ -17,13 +17,24 @@
  */
 package com.github.atdixon.vroom;
 
+import com.google.common.base.Optional;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.atdixon.vroom.Util.notNull;
+
+@SuppressWarnings("unchecked")
 public final class Entity {
+
+    public static Entity empty() {
+        return new Entity(new HashMap<String, Object>());
+    }
 
     public static Entity adapt(Map<String, Object> map) {
         return new Entity(map);
@@ -36,45 +47,61 @@ public final class Entity {
     private final Map<String, Object> asMap;
 
     private Entity(Map<String, Object> asMap) {
-        this.asMap = Util.notNull(asMap);
+        this.asMap = notNull(asMap);
     }
 
     public Map<String, Object> asMap() {
-        return Collections.unmodifiableMap(asMap);
+        return asMap;
     }
 
     public boolean has(String key, Class<?> asType) {
         return getOne(key, asType, null) != null;
     }
 
+    @Nullable
     public <T> T orNull(String key, Class<T> type) {
         return getOne(key, type, null);
     }
 
-    public String requireString(String key) throws CannotCoerceException {
-        return Coercions.toString(asMap.get(key));
+    public <T> Optional<T> orOptional(String key, Class<T> type) {
+        return Optional.fromNullable(getOne(key, type, null));
     }
 
-    public boolean requireBoolean(String key) throws CannotCoerceException {
-        return Coercions.toBoolean(asMap.get(key));
+    public String getString(String key) throws CannotCoerceException {
+        return getOne(key, String.class);
     }
 
-    public float requireFloat(String key) throws CannotCoerceException {
-        return Coercions.toFloat(asMap.get(key));
+    public boolean getBoolean(String key) throws CannotCoerceException {
+        return getOne(key, boolean.class);
     }
 
-    public double requireDouble(String key) throws CannotCoerceException {
-        return Coercions.toDouble(asMap.get(key));
+    public float getFloat(String key) throws CannotCoerceException {
+        return getOne(key, float.class);
     }
 
-    public int requireInt(String key) throws CannotCoerceException {
-        return Coercions.toInteger(asMap.get(key));
+    public double getDouble(String key) throws CannotCoerceException {
+        return getOne(key, double.class);
     }
 
-    @SuppressWarnings("unchecked")
+    public int getInt(String key) throws CannotCoerceException {
+        return getOne(key, int.class);
+    }
+
+    public Map<String, Object> getMap(String key) throws CannotCoerceException {
+        return getOne(key, Map.class);
+    }
+
+    public Entity getEntity(String key) throws CannotCoerceException {
+        return getOne(key, Entity.class);
+    }
+
+    public <T> T getOne(String key, Class<T> type) {
+        return notNull(getOne(key, type, null));
+    }
+
     public <T> T getOne(String key, Class<T> type, T def) {
         Util.insist(!Util.isCollectionType(type));
-        Object val = asMap.get(key);
+        Object val = get(key);
         if (val instanceof Collection) {
             val = ((Collection) val).isEmpty()
                 ? null : ((Collection) val).iterator().next();
@@ -82,11 +109,14 @@ public final class Entity {
         return Coercions.to(val, type, def);
     }
 
-    @SuppressWarnings("unchecked")
+    public List<Entity> getEntities(String key) {
+        return getMany(key, Entity.class);
+    }
+
     public <T> List<T> getMany(String key, Class<T> type) {
         Util.insist(!Util.isCollectionType(type));
         final List<T> answer = new ArrayList<T>();
-        final Object value = asMap.get(key);
+        final Object value = get(key);
         if (value == null) {
             return answer;
         } else if (type == Boolean.class) {
@@ -141,6 +171,34 @@ public final class Entity {
             throw new UnsupportedOperationException(); // unsupported type
         }
         return answer;
+    }
+
+    /** Get and also support dot.expressions. */
+    private Object get(String key) {
+        if (asMap.containsKey(key))
+            return asMap.get(key);
+        final String[] parts = key.split("\\.");
+        Map<String, Object> curr = asMap;
+        for (int i = 0; i < parts.length - 1; ++i) {
+            if (curr.get(parts[i]) instanceof Map) {
+                curr = (Map<String, Object>) curr.get(parts[i]);
+            } else if (curr.get(parts[i]) instanceof Iterable) {
+                final Iterable asIterable = (Iterable) curr.get(parts[i]);
+                final Iterator asIterator = asIterable.iterator();
+                if (asIterator.hasNext()) {
+                    final Object maybeSingleton = asIterator.next();
+                    if (!asIterator.hasNext() && maybeSingleton instanceof Map) {
+                        curr = (Map<String, Object>) maybeSingleton;
+                    } else {
+                        // not a singleton collection or singleton but not a map
+                        return null;
+                    }
+                }
+            } else {
+                return null; // no such path.
+            }
+        }
+        return curr.get(parts[parts.length - 1]);
     }
 
     @Override

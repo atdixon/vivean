@@ -49,12 +49,12 @@ public class DemoTest {
         }});
 
         // access required knowledge...
-        assertEquals(movie.requireInt("release-year"), 2015);
+        assertEquals(movie.getInt("release-year"), 2015);
 
         // if release-year isn't present, that will throw exception.
         // more robustly, you can ask if knowledge is there first...
         if (movie.has("release-year", int.class))  {
-            assertEquals(movie.requireInt("release-year"), 2015);
+            assertEquals(movie.getInt("release-year"), 2015);
         }
 
         // or offer a default for missing attributes...
