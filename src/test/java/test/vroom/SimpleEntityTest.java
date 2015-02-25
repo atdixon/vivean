@@ -43,7 +43,8 @@ public class SimpleEntityTest {
                     "key2", "val2",
                     "key3", asList("val3"),
                     "key4", asList("val4a", "val4b"),
-                    "key5", asList()
+                    "key5", asList(),
+                    "key.6", "val6"
                 ))).build());
 
         assertTrue(e.has("age", int.class));
@@ -62,6 +63,7 @@ public class SimpleEntityTest {
         assertEquals(e.getOne("details.key3", String.class), "val3");
         assertEquals(e.getOne("details.key4", String.class), "val4a");
         assertEquals(e.getOne("details.key5", String.class, null), null);
+        assertEquals(e.getOne("details.key.6", String.class), "val6");
 
         assertNull(e.orNull("details.missing.rating", int.class));
         try {

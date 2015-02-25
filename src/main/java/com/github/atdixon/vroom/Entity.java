@@ -173,14 +173,15 @@ public final class Entity {
         return answer;
     }
 
-    /** Get and also support dot.expressions. */
+    /** Get and also support dot.expressions. Note that any literal key with
+     * a dot in it is preferred for answer before 'navigating' dot. */
     private Object get(String key) {
-        if (asMap.containsKey(key))
-            return asMap.get(key);
         final String[] parts = key.split("\\.");
         Map<String, Object> curr = asMap;
         for (int i = 0; i < parts.length - 1; ++i) {
-            if (curr.get(parts[i]) instanceof Map) {
+            if (curr.containsKey(join(parts, i, '.'))) { // prefer keys containing dots if they exist
+                return curr.get(join(parts, i, '.'));
+            } else if (curr.get(parts[i]) instanceof Map) {
                 curr = (Map<String, Object>) curr.get(parts[i]);
             } else if (curr.get(parts[i]) instanceof Iterable) {
                 final Iterable asIterable = (Iterable) curr.get(parts[i]);
@@ -221,6 +222,16 @@ public final class Entity {
         if (value != null) {
             list.add(value);
         }
+    }
+
+    private static String join(String[] arr, int begin, char sep) {
+        final StringBuilder buf = new StringBuilder();
+        for (int i = begin; i < arr.length; ++i) {
+            if (i != begin)
+                buf.append(sep);
+            buf.append(arr[i]);
+        }
+        return buf.toString();
     }
 
 }
