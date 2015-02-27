@@ -46,7 +46,8 @@ final class Util {
     }
 
     static boolean isCollectionType(Class<?> type) {
-        return Collection.class.isAssignableFrom(type);
+        return Collection.class.isAssignableFrom(type)
+            || type.isArray();
     }
 
 }

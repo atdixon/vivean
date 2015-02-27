@@ -229,9 +229,7 @@ final class Coercions {
     @SuppressWarnings("unchecked")
     static <T> T to(Object value, Class<T> type, T def) {
         Util.insist(!Util.isCollectionType(type));
-        if (value == null) {
-            return def;
-        } else if (type == Boolean.class || type == boolean.class) {
+        if (type == Boolean.class || type == boolean.class) {
             return (T) toBooleanOr(value, (Boolean) def);
         } else if (type == Integer.class || type == int.class) {
             return (T) toIntegerOr(value, (Integer) def);
@@ -241,23 +239,31 @@ final class Coercions {
             return (T) toDoubleOr(value, (Double) def);
         } else if (type == String.class) {
             return (T) toStringOr(value, (String) def);
-        } else if (type == Map.class || type == Entity.class || type.isInterface()) {
-            if (!(value instanceof Map)) {
+        } else if (type == Map.class || type == VMap.class || type.isInterface()) {
+            final Map<String, Object> valueAsMap;
+            if (value == null) {
+                return def;
+            } else if (value instanceof Map) {
+                valueAsMap = (Map<String, Object>) value;
+            } else if (value instanceof VMap) {
+                valueAsMap = ((VMap) value).asMap();
+            } else {
                 throw new CannotCoerceException("not a map: " + value);
             }
-            final Map<?, ?> asMap = (Map<?, ?>) value;
-            if (asMap.isEmpty()) {
-                // empty == no knowledge
+
+            if (valueAsMap.isEmpty()) {
                 return def;
             }
             if (type == Map.class) {
-                return (T) asMap;
+                return (T) valueAsMap;
             }
-            if (type == Entity.class) {
-                return (T) Entity.adapt((Map<String, Object>) asMap);
+            if (type == VMap.class) {
+                return (T) VMap.of(valueAsMap);
             }
             // assert: type.isInterface()
-            return Entity.adapt((Map<String, Object>) value, type);
+            return ProxyFactory.adapt(valueAsMap, type);
+        } else if (value == null) {
+            return def;
         } else {
             throw new IllegalArgumentException("unsupported: " + type);
         }

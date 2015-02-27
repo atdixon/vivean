@@ -18,7 +18,7 @@
 package test.vroom;
 
 import com.github.atdixon.vroom.DefaultValue;
-import com.github.atdixon.vroom.Entity;
+import com.github.atdixon.vroom.V;
 import org.testng.annotations.Test;
 
 import javax.annotation.Nullable;
@@ -28,7 +28,7 @@ import java.util.Set;
 import static org.testng.Assert.fail;
 
 @Test
-public class InvalidInterfacesTest {
+public class InterfaceValidationTest {
 
     private static final Class[] invalids = new Class[] {
         NilAndDefault.class,
@@ -45,8 +45,9 @@ public class InvalidInterfacesTest {
 
     private static void assertInvalidInterface(Class<?> iface) {
         try {
-            Entity.adapt(new HashMap<String, Object>() {{
-                             put("foo", "bar"); }}, iface);
+            V.proxy(new HashMap<String, Object>() {{
+                put("foo", "bar");
+            }}, iface);
             fail(": " + iface);
         } catch (Exception e) { /* success */ }
     }

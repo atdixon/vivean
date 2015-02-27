@@ -22,14 +22,15 @@ import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Map;
 
 final class ProxyFactory {
 
     private ProxyFactory() {}
 
     @SuppressWarnings("unchecked")
-    /*pkg*/ static <T> T adapt(Entity entity, Class<T> type, Class<?>... types) {
-        Util.notNull(entity);
+    /*pkg*/ static <T> T adapt(Map<String, Object> map, Class<T> type, Class<?>... types) {
+        Util.notNull(map);
         final Class<?>[] allTypes = new Class<?>[types.length + 1];
         allTypes[0] = type;
         System.arraycopy(types, 0, allTypes, 1, types.length);
@@ -37,16 +38,16 @@ final class ProxyFactory {
         return (T) Proxy.newProxyInstance(
             type.getClassLoader(),
             allTypes,
-            new InternalInvocationHandler(entity));
+            new InternalInvocationHandler(map));
     }
 
     /** Invocationhandler. */
     static final class InternalInvocationHandler extends AbstractInvocationHandler {
 
-        private final Entity entity;
+        private final Map<String, Object> map;
 
-        /*package*/ InternalInvocationHandler(Entity entity) {
-            this.entity = entity;
+        /*package*/ InternalInvocationHandler(Map<String, Object> map) {
+            this.map = map;
         }
 
         @Override
@@ -54,14 +55,14 @@ final class ProxyFactory {
             if (Methods.isGetter(method)) {
                 final String attribute = Methods.toAttributeName(method);
                 if (Methods.isCollection(method)) {
-                    return entity.getMany(attribute, (Class<?>) Methods.typeOfCollection(method.getGenericReturnType()));
+                    return V.many(map, attribute, (Class<?>) Methods.typeOfCollection(method.getGenericReturnType()));
                 }
                 final Object one;
                 if (Methods.isOptional(method)) {
-                    one = entity.getOne(attribute,
+                    one = V.one(map, attribute,
                         (Class<?>) Methods.typeOfOptional(method.getGenericReturnType()), /*default=*/null);
                 } else {
-                    one = entity.getOne(attribute, method.getReturnType(), /*default=*/null);
+                    one = V.one(map, attribute, method.getReturnType(), /*default=*/null);
                 }
                 if (one == null && !Methods.isNullable(method) && !Methods.isOptional(method) && !Methods.isDefaulted(method)) {
                     throw new MissingRequiredValueException(attribute);
