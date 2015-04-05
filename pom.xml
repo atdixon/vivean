@@ -19,7 +19,7 @@
 
     <groupId>com.github.atdixon</groupId>
     <artifactId>vroom</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.3.0</version>
     <packaging>jar</packaging>
 
     <name>Vroom</name>
@@ -46,7 +46,7 @@
         <connection>scm:git:git@github.com:atdixon/vroom.git</connection>
         <developerConnection>scm:git:git@github.com:atdixon/vroom.git</developerConnection>
         <url>git@github.com:atdixon/vroom.git</url>
-        <tag>HEAD</tag>
+        <tag>vroom-0.3.0</tag>
   </scm>
 
     <dependencies>
