@@ -39,7 +39,7 @@ public class SimpleVMapTest {
         VMap e = VMap.of(ImmutableMap.<String, Object>builder()
             .put("name", "my entity")
             .put("age", Integer.MAX_VALUE)
-            .put("ttl", Integer.MIN_VALUE)
+            .put("ttl", Long.MIN_VALUE)
             .put("creator", getClass().getSimpleName())
             .put("details.key1", "val1")
             .put("details", asList(ImmutableMap.of(
@@ -59,6 +59,12 @@ public class SimpleVMapTest {
         assertEquals((int) e.oneOrNull("age", int.class), Integer.MAX_VALUE);
         assertEquals((int) e.oneOptional("age", int.class).orNull(), Integer.MAX_VALUE);
         assertTrue(e.one("age", int.class, 0) == Integer.MAX_VALUE);
+
+        assertEquals(e.oneLong("ttl"), Long.MIN_VALUE);
+        assertEquals((long) e.one("ttl", long.class), Long.MIN_VALUE);
+        assertEquals((long) e.oneOrNull("ttl", long.class), Long.MIN_VALUE);
+        assertEquals((long) e.oneOptional("ttl", long.class).orNull(), Long.MIN_VALUE);
+        assertTrue(e.one("ttl", long.class, 0L) == Long.MIN_VALUE);
 
         assertEquals(e.oneOrNull("no-such-key", int.class), null);
 

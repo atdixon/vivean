@@ -95,7 +95,7 @@ final class Coercions {
         }
         if (o instanceof String) {
             try {
-                return Float.parseFloat((String)o);
+                return Float.parseFloat((String) o);
             } catch (NumberFormatException e) {/*ok*/}
         }
         throw new CannotCoerceException();
@@ -112,6 +112,23 @@ final class Coercions {
         if (o instanceof String) {
             try {
                 return Integer.valueOf((String) o);
+            } catch (NumberFormatException e) {/*ok*/}
+        }
+        return def;
+    }
+
+    static Long toLongOr(Object o, Long def) {
+        if (o == null) {
+            return def;
+        }
+        if (o instanceof Long) {
+            return (Long) o;
+        } else if (o instanceof Number) {
+            return ((Number) o).longValue();
+        }
+        if (o instanceof String) {
+            try {
+                return Long.valueOf((String) o);
             } catch (NumberFormatException e) {/*ok*/}
         }
         return def;
@@ -233,6 +250,8 @@ final class Coercions {
             return (T) toBooleanOr(value, (Boolean) def);
         } else if (type == Integer.class || type == int.class) {
             return (T) toIntegerOr(value, (Integer) def);
+        } else if (type == Long.class || type == long.class) {
+            return (T) toLongOr(value, (Long) def);
         } else if (type == Float.class || type == float.class) {
             return (T) toFloatOr(value, (Float) def);
         } else if (type == Double.class || type == double.class) {

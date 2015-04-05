@@ -80,6 +80,10 @@ public final class VMap {
         return one(key, int.class);
     }
 
+    public long oneLong(String key) throws CannotCoerceException {
+        return one(key, long.class);
+    }
+
     public Map<String, Object> oneMap(String key) throws CannotCoerceException {
         return one(key, Map.class);
     }

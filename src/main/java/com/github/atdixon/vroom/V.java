@@ -30,7 +30,7 @@ public final class V {
     // value conversions
 
     /** Can value be viewed as at least one/non-empty t? */
-    public static <T> boolean is(Object o, Class<T> t) {
+    public static <T> boolean knows(Object o, Class<T> t) {
         return null != one(o, t, null);
     }
 
@@ -98,7 +98,7 @@ public final class V {
                 return next;
             }
             // assert: if no next -> next == null
-            if (is(next, Map.class)) {
+            if (knows(next, Map.class)) {
                 curr = (Map<String, Object>) one(next, Map.class);
             } else {
                 return null; // no such paths
