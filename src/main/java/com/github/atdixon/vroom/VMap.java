@@ -47,7 +47,7 @@ public final class VMap {
         return map;
     }
 
-    public boolean is(String key, Class<?> asType) {
+    public boolean knows(String key, Class<?> asType) {
         return this.one(key, asType, null) != null;
     }
 

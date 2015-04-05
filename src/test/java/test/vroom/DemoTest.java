@@ -53,7 +53,7 @@ public class DemoTest {
 
         // if release-year isn't present, that will throw exception.
         // more robustly, you can ask if knowledge is there first...
-        if (movie.is("release-year", int.class))  {
+        if (movie.knows("release-year", int.class))  {
             assertEquals(movie.oneInt("release-year"), 2015);
         }
 

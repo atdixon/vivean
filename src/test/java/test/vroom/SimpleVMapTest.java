@@ -51,8 +51,8 @@ public class SimpleVMapTest {
                     ImmutableMap.of("key.7", "val7"),
                     ImmutableMap.of("key.8", "val8"))))).build());
 
-        assertTrue(e.is("age", int.class));
-        assertFalse(e.is("ttl", boolean.class)); // not as boolean
+        assertTrue(e.knows("age", int.class));
+        assertFalse(e.knows("ttl", boolean.class)); // not as boolean
 
         assertEquals(e.oneInt("age"), Integer.MAX_VALUE);
         assertEquals((int) e.one("age", int.class), Integer.MAX_VALUE);
