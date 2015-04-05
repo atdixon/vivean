@@ -7,6 +7,6 @@ Available in Maven Central. Use:
     <dependency>
         <groupId>com.github.atdixon</groupId>
         <artifactId>vroom</artifactId>
-        <version>0.2.0</version>
+        <version>0.3.0</version>
     </dependency>
 
