@@ -18,6 +18,9 @@
 package com.github.atdixon.vroom;
 
 import com.google.common.base.Optional;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -38,6 +41,11 @@ public final class VMap {
     }
 
     private final Map<String, Object> map;
+    private final LoadingCache<ManyTuple, List<?>> manyCache
+        = CacheBuilder.newBuilder()
+            .build(new CacheLoader<ManyTuple, List<?>>() {
+                @Override public List<?> load(ManyTuple key) throws Exception {
+                    return _many(key.a, key.b); }});
 
     private VMap(Map<String, Object> map) {
         this.map = notNull(map);
@@ -105,6 +113,10 @@ public final class VMap {
     }
 
     public <T> List<T> many(String key, Class<T> t) {
+        return (List<T>) manyCache.getUnchecked(new ManyTuple(key, t));
+    }
+
+    private <T> List<T> _many(String key, Class<T> t) {
         return V.many(map, key, t);
     }
 
@@ -122,6 +134,27 @@ public final class VMap {
     @Override
     public String toString() {
         return "VMap(" + map.toString() + ")";
+    }
+
+    private static final class ManyTuple<T> {
+        private final String a;
+        private final Class<T> b; // not null fields
+        private ManyTuple(String a, Class<T> b) {
+            this.a = a;
+            this.b = b;
+        }
+        @Override public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            final ManyTuple tuple = (ManyTuple) o;
+            return a.equals(tuple.a) && b.equals(tuple.b);
+
+        }
+        @Override public int hashCode() {
+            return 31 * a.hashCode() + b.hashCode();
+        }
     }
 
 }
