@@ -10,3 +10,6 @@ Available in Maven Central. Use:
         <version>0.3.0</version>
     </dependency>
 
+TODO
+    -- optimizations
+    -- performance benchmarks
