@@ -23,9 +23,9 @@ final class Coercions {
 
     private Coercions() {}
 
-    static boolean toBoolean(Object o) throws CannotCoerceException {
+    static boolean toBoolean(Object o) throws xCannotCoerceException {
         if (o == null) {
-            throw new CannotCoerceException();
+            throw new xCannotCoerceException();
         } else if (o instanceof Boolean) {
             return (Boolean) o;
         } else if (o instanceof String) {
@@ -35,7 +35,7 @@ final class Coercions {
                 return false;
             }
         }
-        throw new CannotCoerceException();
+        throw new xCannotCoerceException();
     }
 
     static boolean toBooleanOr(Object o, boolean def) {
@@ -69,9 +69,9 @@ final class Coercions {
         return def;
     }
 
-    static int toInteger(Object o) throws CannotCoerceException {
+    static int toInteger(Object o) throws xCannotCoerceException {
         if (o == null) {
-            throw new CannotCoerceException();
+            throw new xCannotCoerceException();
         } else if (o instanceof Integer) {
             return (Integer) o;
         } else if (o instanceof Number) {
@@ -82,12 +82,12 @@ final class Coercions {
                 return Integer.parseInt((String)o);
             } catch (NumberFormatException e) {/*ok*/}
         }
-        throw new CannotCoerceException();
+        throw new xCannotCoerceException();
     }
 
-    static float toFloat(Object o) throws CannotCoerceException {
+    static float toFloat(Object o) throws xCannotCoerceException {
         if (o == null) {
-            throw new CannotCoerceException();
+            throw new xCannotCoerceException();
         } else if (o instanceof Float) {
             return (Float) o;
         } else if (o instanceof Number) {
@@ -98,7 +98,7 @@ final class Coercions {
                 return Float.parseFloat((String) o);
             } catch (NumberFormatException e) {/*ok*/}
         }
-        throw new CannotCoerceException();
+        throw new xCannotCoerceException();
     }
 
     static Integer toIntegerOr(Object o, Integer def) {
@@ -150,9 +150,9 @@ final class Coercions {
         return def;
     }
 
-    static double toDouble(Object o) throws CannotCoerceException {
+    static double toDouble(Object o) throws xCannotCoerceException {
         if (o == null) {
-            throw new CannotCoerceException();
+            throw new xCannotCoerceException();
         } else if (o instanceof Double) {
             return (Double) o;
         } else if (o instanceof Number) {
@@ -163,7 +163,7 @@ final class Coercions {
                 return Double.parseDouble((String)o);
             } catch (NumberFormatException e) {/*ok*/}
         }
-        throw new CannotCoerceException();
+        throw new xCannotCoerceException();
     }
 
     static double toDoubleOr(Object o, double def) {
@@ -238,7 +238,7 @@ final class Coercions {
 
     static String toString(Object o) {
         if (o == null) {
-            throw new CannotCoerceException();
+            throw new xCannotCoerceException();
         }
         return o instanceof String ? (String) o : o.toString();
     }
@@ -267,7 +267,7 @@ final class Coercions {
             } else if (value instanceof VMap) {
                 valueAsMap = ((VMap) value).asMap();
             } else {
-                throw new CannotCoerceException("not a map: " + value);
+                throw new xCannotCoerceException("not a map: " + value);
             }
 
             if (valueAsMap.isEmpty()) {

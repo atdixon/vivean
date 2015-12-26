@@ -1,0 +1,20 @@
+-- java 8 date and time and locale etc
+-- sql date and time
+-- collection and array coercions?
+-- package-info.java explaining core philosophy
+        (* knowledge-orientation; so coerce if 'reasonable interpretation'
+         * throws fast CannotCoerceException
+         * conversion to collection types??___
+         * KEY: null -> null OR null -> emptyCollection, depending
+                ...->collection gets 'many' behavior
+                ...->non-colloction gets 'one' behavior
+         * ...)
+
+-- get rid of insist() for perf -- or use assert???
+
+
+-- instead of insist, use java8.Objects utils
+
+
+--EXPLAIN:
+    -- Kilt handles item containers, which includes List, Optional, etc. but NOT Map

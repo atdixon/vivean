@@ -17,13 +17,13 @@
  */
 package com.github.atdixon.vroom;
 
-public final class CannotCoerceException extends RuntimeException {
+public final class xCannotCoerceException extends RuntimeException {
 
-    public CannotCoerceException() {
+    public xCannotCoerceException() {
         super();
     }
 
-    public CannotCoerceException(String message) {
+    public xCannotCoerceException(String message) {
         super(message);
     }
 

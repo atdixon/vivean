@@ -60,35 +60,35 @@ public final class VMap {
         return Optional.fromNullable(this.one(key, type, null));
     }
 
-    public String oneString(String key) throws CannotCoerceException {
+    public String oneString(String key) throws xCannotCoerceException {
         return one(key, String.class);
     }
 
-    public boolean oneBoolean(String key) throws CannotCoerceException {
+    public boolean oneBoolean(String key) throws xCannotCoerceException {
         return one(key, boolean.class);
     }
 
-    public float oneFloat(String key) throws CannotCoerceException {
+    public float oneFloat(String key) throws xCannotCoerceException {
         return one(key, float.class);
     }
 
-    public double oneDouble(String key) throws CannotCoerceException {
+    public double oneDouble(String key) throws xCannotCoerceException {
         return one(key, double.class);
     }
 
-    public int oneInt(String key) throws CannotCoerceException {
+    public int oneInt(String key) throws xCannotCoerceException {
         return one(key, int.class);
     }
 
-    public long oneLong(String key) throws CannotCoerceException {
+    public long oneLong(String key) throws xCannotCoerceException {
         return one(key, long.class);
     }
 
-    public Map<String, Object> oneMap(String key) throws CannotCoerceException {
+    public Map<String, Object> oneMap(String key) throws xCannotCoerceException {
         return one(key, Map.class);
     }
 
-    public VMap oneVMap(String key) throws CannotCoerceException {
+    public VMap oneVMap(String key) throws xCannotCoerceException {
         return one(key, VMap.class);
     }
 
