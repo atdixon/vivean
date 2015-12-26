@@ -1,2 +1,0 @@
--- Nullable NotNull etc applied to VMap methods and other values (default_ are Nullable, e.g.)
-    ... use javax.annotation and shade? or copy to V?

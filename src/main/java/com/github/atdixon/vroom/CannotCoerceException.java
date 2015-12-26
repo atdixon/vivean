@@ -1,4 +1,6 @@
-package com.github.atdixon.vroom.coercion;
+package com.github.atdixon.vroom;
+
+import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
 
 import java.lang.reflect.Type;
 
@@ -12,17 +14,18 @@ public final class CannotCoerceException extends RuntimeException {
         this.value = value;
     }
 
+    public CannotCoerceException(FastCannotCoerceException e) {
+        super(e);
+        this.type = e.type();
+        this.value = e.value();
+    }
+
     public Type type() {
         return type;
     }
 
     public Object value() {
         return value;
-    }
-
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
     }
 
 }

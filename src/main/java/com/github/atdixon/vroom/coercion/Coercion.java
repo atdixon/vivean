@@ -5,6 +5,6 @@ import java.lang.reflect.Type;
 
 public interface Coercion<T> {
 
-    @Nullable T coerce(Type type, Object value) throws CannotCoerceException;
+    @Nullable T coerce(Type type, Object value) throws FastCannotCoerceException;
 
 }

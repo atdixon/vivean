@@ -1,127 +1,117 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.github.atdixon.vroom;
 
-import com.google.common.base.Optional;
+import clojure.lang.IPersistentMap;
+import clojure.lang.MapEntry;
+import clojure.lang.PersistentHashMap;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import static com.github.atdixon.vroom.Util.notNull;
-
-@SuppressWarnings("unchecked")
 public final class VMap {
 
-    public static VMap empty() {
-        return new VMap(new HashMap<String, Object>());
+    // static factory methods
+
+    public static VMap create() {
+        return new VMap(PersistentHashMap.create());
     }
 
-    public static VMap of(Map<String, Object> map) {
-        return new VMap(map);
+    public static VMap create(Map<String, Object> map) {
+        return new VMap(PersistentHashMap.create(map));
     }
 
-    private final Map<String, Object> map;
+    // state
 
-    private VMap(Map<String, Object> map) {
-        this.map = notNull(map);
+    private final IPersistentMap/*<String,Object>*/ map;
+
+    private VMap(IPersistentMap/*<String,Object>*/ map) {
+        this.map = map;
     }
 
-    public Map<String, Object> asMap() {
-        return map;
+    // producers
+
+    public VMap assoc(String key, Object val) {
+        if (val == null) {
+            if (map.valAt(key) == null) {
+                return this;
+            } else {
+                return new VMap(map.without(key));
+            }
+        } else {
+            if (val.equals(map.valAt(key))) {
+                return this;
+            } else {
+                return new VMap(map.assoc(key, val));
+            }
+        }
     }
 
-    public boolean knows(String key, Class<?> asType) {
-        return this.one(key, asType, null) != null;
+    public VMap without(String key) {
+        return new VMap(map.without(key));
     }
 
-    @Nullable
-    public <T> T oneOrNull(String key, Class<T> type) {
-        return this.one(key, type, null);
+    // ...
+
+    /** Answer unmodifiable map. todo shrink */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> toMap() {
+        return Collections.unmodifiableMap(StreamSupport.stream((Spliterator<MapEntry>) map.spliterator(), false)
+            .collect(Collectors.toMap(e -> (String) e.key(), e -> (Object) e.val())));
     }
 
-    public <T> Optional<T> oneOptional(String key, Class<T> type) {
-        return Optional.fromNullable(this.one(key, type, null));
+    // core reads
+
+    public <T> boolean knows(String key, Class<T> as) {
+        return null != one(key, as, (T) null);
     }
 
-    public String oneString(String key) throws xCannotCoerceException {
-        return one(key, String.class);
+    public <T> void one(String key, Class<T> as, Consumer<? super T> consumer) {
+        V.one(V.get(map, key), as, consumer);
     }
 
-    public boolean oneBoolean(String key) throws xCannotCoerceException {
-        return one(key, boolean.class);
+    @Nonnull
+    public <T> T one(String key, Class<T> as) throws NotKnownException {
+        return V.one(V.get(map, key), as);
     }
 
-    public float oneFloat(String key) throws xCannotCoerceException {
-        return one(key, float.class);
+    @Nonnull
+    public <T> T one(String key, TypeReference<T> as) throws NotKnownException {
+        return V.one(V.get(map, key), as);
     }
 
-    public double oneDouble(String key) throws xCannotCoerceException {
-        return one(key, double.class);
+    /** Nullable. */
+    public <T> T one(String key, Class<T> as, @Nullable T default_) {
+        return V.one(V.get(map, key), as, default_);
     }
 
-    public int oneInt(String key) throws xCannotCoerceException {
-        return one(key, int.class);
+    /** Nullable. */
+    public <T> T one(String key, TypeReference<T> as, @Nullable T default_) {
+        return V.one(V.get(map, key), as, default_);
     }
 
-    public long oneLong(String key) throws xCannotCoerceException {
-        return one(key, long.class);
+    @Nonnull
+    public <T> List<T> many(String key, Class<T> as) {
+        return V.many(V.get(map, key), as);
     }
 
-    public Map<String, Object> oneMap(String key) throws xCannotCoerceException {
-        return one(key, Map.class);
+    @Nonnull
+    public <T> List<T> many(String key, TypeReference<T> as) {
+        return V.many(V.get(map, key), as);
     }
 
-    public VMap oneVMap(String key) throws xCannotCoerceException {
-        return one(key, VMap.class);
-    }
+    // pretties
 
-    public List<VMap> getEntities(String key) {
-        return many(key, VMap.class);
-    }
-
-    public <T> T one(String key, Class<T> t) {
-        return V.one(map, key, t);
-    }
-
-    public <T> T one(String key, Class<T> t, T def) {
-        return V.one(map, key, t, def);
-    }
-
-    public <T> List<T> many(String key, Class<T> t) {
-        return V.many(map, key, t);
-    }
-
-    @Override
-    public int hashCode() {
-        return map.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj.getClass() == VMap.class
-            && map.equals(((VMap) obj).map);
-    }
+    // niceties
 
     @Override
     public String toString() {
-        return "VMap(" + map.toString() + ")";
+        return map.toString();
     }
 
 }

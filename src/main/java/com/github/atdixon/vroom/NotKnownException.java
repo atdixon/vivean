@@ -1,4 +1,4 @@
-package com.github.atdixon.vroom2;
+package com.github.atdixon.vroom;
 
 public final class NotKnownException extends RuntimeException {
 

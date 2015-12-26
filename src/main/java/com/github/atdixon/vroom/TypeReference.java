@@ -1,4 +1,4 @@
-package com.github.atdixon.vroom2;
+package com.github.atdixon.vroom;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

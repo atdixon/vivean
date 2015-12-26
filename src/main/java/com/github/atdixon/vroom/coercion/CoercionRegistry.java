@@ -1,7 +1,5 @@
 package com.github.atdixon.vroom.coercion;
 
-import com.github.atdixon.vroom2.vutil;
-
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -11,8 +9,9 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import static com.github.atdixon.vroom2.vutil.rawTypeOf;
+import static com.github.atdixon.vroom.coercion.Util.rawTypeOf;
 
 public final class CoercionRegistry {
 
@@ -40,8 +39,7 @@ public final class CoercionRegistry {
         register(new ToSqlDate(), java.sql.Date.class);
         register(new ToSqlTime(), java.sql.Time.class);
         register(new ToSqlTimestamp(), java.sql.Timestamp.class);
-        register(new ToCalendar(), Calendar.class);
-        register(new ToGregorianCalendar(), GregorianCalendar.class);
+        register(new ToCalendar(), GregorianCalendar.class, Calendar.class);
 
         register(new ToUrl(), URL.class);
         register(new ToUri(), URI.class);
@@ -60,13 +58,19 @@ public final class CoercionRegistry {
     }
 
     public static Coercion require(Class type) {
-        return vutil.notNull(registry.get(type), "no coercion for %s", type.getName());
+        return Objects.requireNonNull(registry.get(type), () -> "no coercion for " + type.getName());
     }
 
     @SuppressWarnings("unchecked") @Nullable
-    public static <T> T coerce(Type type, @Nullable Object value) throws CannotCoerceException {
-        return (T) require(rawTypeOf(type))
+    public static <T> T coerce(Type type, @Nullable Object value) throws FastCannotCoerceException {
+        if (value == null) {
+            return null;
+        } else if (type instanceof Class && value.getClass().isAssignableFrom((Class) type)) {
+            return (T) value;
+        } else { // a coercion is required
+            return (T) require(rawTypeOf(type))
                 .coerce(type, value);
+        }
     }
 
 }

@@ -1,85 +1,116 @@
 package com.github.atdixon.vroom;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+import clojure.lang.IPersistentMap;
+import com.github.atdixon.vroom.coercion.CoercionKilt;
+import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-
-import static com.github.atdixon.vroom.Util.insist;
-import static com.github.atdixon.vroom.Util.notNull;
+import java.util.function.Consumer;
 
 public final class V {
 
     private V() {}
 
-    // map lookups
-
-    public static <T> T one(Map<String, Object> map, String key, Class<T> t) {
-        return one(get(map, key), t);
+    public static <T> boolean knows(Object value, Class<T> as) {
+        return null != one(value, as, (T) null);
     }
 
-    public static <T> T one(Map<String, Object> map, String key, Class<T> t, T def) {
-        return one(get(map, key), t, def);
+    public static <T> boolean knows(Object value, TypeReference<T> as) {
+        return null != one(value, as.getType(), (T) null);
     }
 
-    public static <T> List<T> many(Map<String, Object> map, String key, Class<T> t) {
-        return many(get(map, key), t);
+    @Nonnull
+    public static <T> T one(Object value, Class<T> as) throws CannotCoerceException {
+        return one(value, (Type) as);
     }
 
-    // value conversions
-
-    /** Can value be viewed as at least one/non-empty t? */
-    public static <T> boolean knows(Object o, Class<T> t) {
-        return null != one(o, t, null);
+    @Nonnull
+    public static <T> T one(Object value, TypeReference<T> as) throws CannotCoerceException {
+        return one(value, as.getType());
     }
 
-    public static <T> T one(Object o, Class<T> t) {
-        insist(!Util.isCollectionType(t));
-        return notNull(one(o, t, null));
+    /** Nullable. */
+    public static <T> T one(Object value, Class<T> as, @Nullable T default_) {
+        return one(value, (Type) as, default_);
     }
 
-    public static <T> T one(Object o, Class<T> t, T def) {
-        insist(!Util.isCollectionType(t));
-        if (o instanceof Iterable) {
-            o = Iterables.getFirst((Iterable) o, null);
-        } else if (o instanceof Object[]) {
-            o = ((Object[]) o).length > 0 ? ((Object[]) o)[0] : null;
+    /** Nullable. */
+    public static <T> T one(Object value, TypeReference<T> as, @Nullable T default_) {
+        return one(value, as.getType(), default_);
+    }
+
+    public static <T> void one(Object value, Class<T> as, Consumer<? super T> consumer) {
+        final T one = one(value, as, (T) null);
+        if (one != null)
+            consumer.accept(one);
+    }
+
+    public static <T> void one(Object value, TypeReference<T> as, Consumer<? super T> consumer) {
+        final T one = one(value, as, (T) null);
+        if (one != null)
+            consumer.accept(one);
+    }
+
+    @Nonnull
+    public static <T> List<T> many(Object value, Class<T> as) {
+        return one(value, createParameterizedType(List.class, as));
+    }
+
+    @Nonnull
+    public static <T> List<T> many(Object value, TypeReference<T> as) {
+        return one(value, createParameterizedType(List.class, as.getType()));
+    }
+
+    private static <T> T one(Object value, Type as) throws CannotCoerceException {
+        try {
+            final T coerced = CoercionKilt.coerce(as, value);
+            if (coerced == null)
+                throw new CannotCoerceException(as, value);
+            return coerced;
+        } catch (FastCannotCoerceException e) {
+            throw new CannotCoerceException(e);
         }
-        return Coercions.to(o, t, def);
     }
 
-    public static <T> List<T> many(Object o, Class<T> t) {
-        insist(!Util.isCollectionType(t));
-        final ImmutableList.Builder<T> answer = ImmutableList.builder();
-        if (o instanceof Iterable) {
-            for (Object i : (Iterable) o) {
-                addNotNullOrEmpty(answer, Coercions.to(i, t, null));
-            }
-        } else if (o instanceof Object[]) {
-            for (Object i : (Object[]) o) {
-                addNotNullOrEmpty(answer, Coercions.to(i, t, null));
-            }
-        } else if (o != null) {
-            addNotNullOrEmpty(answer, Coercions.to(o, t, null));
+    private static <T> T one(Object value, Type as, T default_) {
+        try {
+            final T coerced = CoercionKilt.coerce(as, value);
+            return coerced != null ? coerced : default_;
+        } catch (FastCannotCoerceException e) {
+            return default_;
         }
-        return answer.build();
     }
 
-    // factories
-
-    public static <T> T proxy(Map<String, Object> m, Class<T> t, Class<?>... ts) {
-        return ProxyFactory.adapt(m, t, ts);
+    private static ParameterizedType createParameterizedType(final Type rawType, final Type... actualTypeArguments) {
+        return new ParameterizedType() {
+            @Override public Type[] getActualTypeArguments() {
+                return actualTypeArguments;
+            }
+            @Override public Type getRawType() {
+                return rawType;
+            }
+            @Override public Type getOwnerType() {
+                return null; }};
     }
 
-    // internal
+    public static Object get(Map<String, Object> map, String key) {
+        return get(adapt(map), key);
+    }
+
+    /*package*/ static Object get(IPersistentMap/*<String,Object>*/ map, String key) {
+        return get(adapt(map), key);
+    }
 
     /** Get and also support dot.expressions. Note that any literal key with
      * a dot in it is preferred for answer before 'navigating' dot. */
-    @SuppressWarnings("unchecked")
-    private static Object get(Map<String, Object> map, String key) {
+    private static Object get(MapLike map, String key) {
         final String[] parts = key.split("\\.");
-        Map<String, Object> curr = map; // invariant: curr = next, if next is a map.
+        MapLike curr = map; // invariant: curr = next, if next is a map.
         Object next = null; // invariant: next found value
         int i = 0; // inv: curr index into parts
         for (;;) {
@@ -88,8 +119,9 @@ public final class V {
             // becomes important (for long dot path access use cases, we can pre
             // index map.)
             for (int j = parts.length; j > i; --j) {
-                next = curr.get(join(parts, i, j, '.'));
-                if (curr.containsKey(join(parts, i, j, '.'))) {
+                final String path = join(parts, i, j, '.');
+                next = curr.get(path);
+                if (curr.containsKey(path)) {
                     i = j;
                     break; // keep next and break from j loop.
                 }
@@ -99,7 +131,7 @@ public final class V {
             }
             // assert: if no next -> next == null
             if (knows(next, Map.class)) {
-                curr = (Map<String, Object>) one(next, Map.class);
+                curr = adapt(one(next, new TypeReference<Map<String, Object>>() {}));
             } else {
                 return null; // no such paths
             }
@@ -118,10 +150,30 @@ public final class V {
         return buf.toString();
     }
 
-    private static <T> void addNotNullOrEmpty(ImmutableList.Builder<T> list, T value) {
-        if (value instanceof Map && !((Map) value).isEmpty() || value != null) {
-            list.add(value);
-        }
+    private static MapLike adapt(final IPersistentMap/*<String,Object>*/ map) {
+        return new MapLike() {
+            @Override public Object get(String key) {
+                return map.valAt(key);
+            }
+            @Override public boolean containsKey(String key) {
+                return map.containsKey(key);
+            }};
+    }
+
+    private static MapLike adapt(final Map<String, Object> map) {
+        return new MapLike() {
+            @Override public Object get(String key) {
+                return map.get(key);
+            }
+            @Override public boolean containsKey(String key) {
+                return map.containsKey(key);
+            }};
+    }
+
+    /** Internal. */
+    private interface MapLike {
+        Object get(String key);
+        boolean containsKey(String key);
     }
 
 }

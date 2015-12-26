@@ -8,14 +8,14 @@ import java.util.Map;
 public final class ToHashMap implements Coercion<HashMap> {
 
     @Override
-    public HashMap coerce(Type type, Object value) throws CannotCoerceException {
+    public HashMap coerce(Type type, Object value) throws FastCannotCoerceException {
         if (value instanceof HashMap) {
             return (HashMap) value;
         }
         if (value instanceof Map) {
             return new HashMap((Map) value);
         }
-        throw new CannotCoerceException(type, value);
+        throw new FastCannotCoerceException(type, value);
     }
 
 }
