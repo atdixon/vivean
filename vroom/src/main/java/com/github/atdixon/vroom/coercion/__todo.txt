@@ -21,3 +21,10 @@
 
 --EXPLAIN:
     -- Kilt handles item containers, which includes List, Optional, etc. but NOT Map
+
+
+
+-- show off (mapping) usecases like:
+
+    site.one("webpres", String.class, result::add); // to add to list
+                ... // to add to map

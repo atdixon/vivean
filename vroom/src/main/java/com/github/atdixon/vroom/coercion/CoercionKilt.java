@@ -44,10 +44,9 @@ public final class CoercionKilt {
             }
         } else {
             if (isContainer(value)) {
-                final Type containerType = containerType(type);
                 final Object[] answer = new Object[1];
                 forEach(value, v -> {
-                    final Object coerced = coerce(containerType, v);
+                    final Object coerced = coerce(type, v);
                     if (coerced != null && !isEmptyContainer(coerced)) {
                         answer[0] = coerced;
                         return false;

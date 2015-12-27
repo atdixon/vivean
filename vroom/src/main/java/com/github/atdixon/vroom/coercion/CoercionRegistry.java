@@ -68,8 +68,14 @@ public final class CoercionRegistry {
         } else if (type instanceof Class && value.getClass().isAssignableFrom((Class) type)) {
             return (T) value;
         } else { // a coercion is required
-            return (T) require(rawTypeOf(type))
-                .coerce(type, value);
+            try {
+                return (T) require(rawTypeOf(type))
+                    .coerce(type, value);
+            } catch (Exception e) {
+                throw (e instanceof FastCannotCoerceException)
+                    ? (FastCannotCoerceException) e
+                    : new FastCannotCoerceException(type, value, e);
+            }
         }
     }
 

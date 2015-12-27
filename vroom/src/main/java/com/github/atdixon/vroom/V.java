@@ -9,34 +9,18 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public final class V {
 
     private V() {}
 
-    /** Type factories. */
-    public static final class TypeRef {
-        private TypeRef() {}
-        public static <T> TypeSupplier<Optional<T>> Optional(Class<T> type) {
-            return () -> new ParameterizedTypeImpl(null, Optional.class, type);
-        }
-        public static <T> TypeSupplier<List<T>> List(Class<T> type) {
-            return () -> new ParameterizedTypeImpl(null, List.class, type);
-        }
-        public static <T> TypeSupplier<List<T>> Set(Class<T> type) {
-            return () -> new ParameterizedTypeImpl(null, Set.class, type);
-        }
-    }
-
     public static <T> boolean knows(Object value, Class<T> as) {
-        return null != one(value, as, (T) null);
+        return null != oneOr(value, as, null);
     }
 
     public static <T> boolean knows(Object value, TypeSupplier<T> as) {
-        return null != one(value, as.get(), (T) null);
+        return null != oneOr(value, as.get(), null);
     }
 
     @Nonnull
@@ -50,23 +34,23 @@ public final class V {
     }
 
     /** Nullable. */
-    public static <T> T one(Object value, Class<T> as, @Nullable T default_) {
-        return one(value, (Type) as, default_);
+    public static <T> T oneOr(Object value, Class<T> as, @Nullable T default_) {
+        return oneOr(value, (Type) as, default_);
     }
 
     /** Nullable. */
-    public static <T> T one(Object value, TypeSupplier<T> as, @Nullable T default_) {
-        return one(value, as.get(), default_);
+    public static <T> T oneOr(Object value, TypeSupplier<T> as, @Nullable T default_) {
+        return oneOr(value, as.get(), default_);
     }
 
     public static <T> void one(Object value, Class<T> as, Consumer<? super T> consumer) {
-        final T one = one(value, as, (T) null);
+        final T one = oneOr(value, as, null);
         if (one != null)
             consumer.accept(one);
     }
 
     public static <T> void one(Object value, TypeSupplier<T> as, Consumer<? super T> consumer) {
-        final T one = one(value, as, (T) null);
+        final T one = oneOr(value, as, null);
         if (one != null)
             consumer.accept(one);
     }
@@ -94,7 +78,7 @@ public final class V {
     }
 
     /** Nullable. */
-    private static <T> T one(Object value, Type as, @Nullable T default_) {
+    private static <T> T oneOr(Object value, Type as, @Nullable T default_) {
         try {
             final T coerced = CoercionKilt.coerce(as, value);
             return coerced != null ? coerced : default_;
@@ -103,7 +87,7 @@ public final class V {
         }
     }
 
-    public static Object get(Map<String, Object> map, String key) {
+    public static Object get(Map<String, ?> map, String key) {
         return get(adapt(map), key);
     }
 
@@ -155,7 +139,7 @@ public final class V {
         return buf.toString();
     }
 
-    private static MapLike adapt(final IPersistentMap/*<String,Object>*/ map) {
+    private static MapLike adapt(final IPersistentMap/*<String,?>*/ map) {
         return new MapLike() {
             @Override public Object get(String key) {
                 return map.valAt(key);
@@ -165,7 +149,7 @@ public final class V {
             }};
     }
 
-    private static MapLike adapt(final Map<String, Object> map) {
+    private static MapLike adapt(final Map<String, ?> map) {
         return new MapLike() {
             @Override public Object get(String key) {
                 return map.get(key);

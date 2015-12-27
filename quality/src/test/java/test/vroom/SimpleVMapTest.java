@@ -17,6 +17,7 @@
  */
 package test.vroom;
 
+import com.github.atdixon.vroom.TR;
 import com.github.atdixon.vroom.TypeReference;
 import com.github.atdixon.vroom.V;
 import com.github.atdixon.vroom.VMap;
@@ -60,17 +61,17 @@ public class SimpleVMapTest {
 
         assertEquals(e.one("age", Integer.class), (Integer) Integer.MAX_VALUE);
         assertEquals(e.one("age", Integer.class), (Integer) Integer.MAX_VALUE);
-        assertEquals(e.one("age", Integer.class, (Integer) null), (Integer) Integer.MAX_VALUE);
+        assertEquals(e.oneOr("age", Integer.class, null), (Integer) Integer.MAX_VALUE);
         assertEquals(e.one("age", new TypeReference<Optional<Integer>>() {})
             .orElse(null), (Integer) Integer.MAX_VALUE);
-        assertTrue(e.one("age", int.class, 0) == Integer.MAX_VALUE);
+        assertTrue(e.oneOr("age", int.class, 0) == Integer.MAX_VALUE);
 
         assertEquals(e.one("ttl", long.class), (Long) Long.MIN_VALUE);
         assertEquals((long) e.one("ttl", long.class), Long.MIN_VALUE);
-        assertEquals((long) e.one("ttl", long.class, (Long) null), Long.MIN_VALUE);
-        assertEquals((long) e.one("ttl", V.TypeRef.Optional(Long.class))
+        assertEquals((long) e.oneOr("ttl", long.class, null), Long.MIN_VALUE);
+        assertEquals((long) e.one("ttl", TR.Optional(Long.class))
             .orElse(null), Long.MIN_VALUE);
-        assertTrue(e.one("ttl", long.class, 0L) == Long.MIN_VALUE);
+        assertTrue(e.oneOr("ttl", long.class, 0L) == Long.MIN_VALUE);
 
         assertEquals(e.one("no-such-key", new TypeReference<Optional<Integer>>() {}).orElse(null), null);
 
@@ -78,10 +79,10 @@ public class SimpleVMapTest {
         assertEquals(e.one("details.key2", String.class), "val2");
         assertEquals(e.one("details.key3", String.class), "val3");
         assertEquals(e.one("details.key4", String.class), "val4a");
-        assertEquals(e.one("details.key5", String.class, (String) null), null);
+        assertEquals(e.oneOr("details.key5", String.class, null), null);
         assertEquals(e.one("details.key.6.key.7", String.class), "val7");
 
-        assertNull(e.one("details.missing.rating", int.class, (Integer) null));
+        assertNull(e.oneOr("details.missing.rating", int.class, null));
         try {
             assertEquals((int) e.one("details.missing.rating", int.class), 4);
             fail();

@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static org.testng.Assert.assertEquals;
@@ -56,16 +57,16 @@ public class DemoTest {
         }
 
         // or offer a default for missing attributes...
-        assertEquals(movie.one("dvd-release-year", int.class, 2016),
+        assertEquals(movie.oneOr("dvd-release-year", int.class, 2016),
             (Integer) 2016);
 
         // or use null semantics
-        if (movie.one("dvd-release-year", Integer.class, (Integer) null) != null) {
+        if (movie.oneOr("dvd-release-year", Integer.class, null) != null) {
             fail();
         }
 
         // for collections, sometimes you can only handle one...
-        assertEquals(movie.one("producer", String.class, (String) null),
+        assertEquals(movie.oneOr("producer", String.class, null),
             "Bob Smith");
 
         // but you can upgrade your code to handle more later...
@@ -75,7 +76,7 @@ public class DemoTest {
         assertEquals(movie.many("director", String.class),
             Collections.emptyList());
 
-        assertEquals(movie.one("sub-object", Map.class, (Map) null),
+        assertEquals(movie.oneOr("sub-object", Map.class, null),
             new HashMap<String, Object>() {{
                 put("tag", "red"); }});
         assertEquals(movie.many("sub-object", Map.class),
@@ -88,18 +89,22 @@ public class DemoTest {
         // toMap support
         assertEquals(movie.toMap().get("title"), "Super Movie");
 
-//        assertEquals(movie.one("sub-object", VMap.class, null),
-//            VMap.of(new HashMap<String, Object>() {{
-//                put("tag", "red");
-//            }}));
-//        assertEquals(movie.many("sub-object", VMap.class),
-//            asList(
-//                VMap.of(new HashMap<String, Object>() {{
-//                    put("tag", "red");
-//                }}),
-//                VMap.of(new HashMap<String, Object>() {{
-//                    put("tag", "green");
-//                }})));
+        assertEquals(movie.oneOr("sub-object", VMap.class, null)
+                .toMap(),
+            VMap.create(new HashMap<String, Object>() {{
+                put("tag", "red");
+            }}).toMap());
+        assertEquals(movie.many("sub-object", VMap.class)
+            .stream()
+            .map(VMap::toMap)
+            .collect(Collectors.toList()),
+            asList(
+                VMap.create(new HashMap<String, Object>() {{
+                    put("tag", "red");
+                }}).toMap(),
+                VMap.create(new HashMap<String, Object>() {{
+                    put("tag", "green");
+                }}).toMap()));
     }
 
 }
