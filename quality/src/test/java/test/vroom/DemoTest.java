@@ -85,6 +85,9 @@ public class DemoTest {
             new HashMap<String, Object>() {{
                 put("tag", "green"); }}));
 
+        // toMap support
+        assertEquals(movie.toMap().get("title"), "Super Movie");
+
 //        assertEquals(movie.one("sub-object", VMap.class, null),
 //            VMap.of(new HashMap<String, Object>() {{
 //                put("tag", "red");
