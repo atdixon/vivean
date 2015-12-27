@@ -20,13 +20,15 @@ package test.vroom;
 import com.github.atdixon.vroom.TypeReference;
 import com.github.atdixon.vroom.V;
 import com.github.atdixon.vroom.VMap;
-import com.google.common.collect.ImmutableMap;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
@@ -38,20 +40,20 @@ public class SimpleVMapTest {
 
     @SuppressWarnings("unchecked")
     public void testSimple() {
-        VMap e = VMap.create(ImmutableMap.<String, Object>builder()
-            .put("name", "my entity")
-            .put("age", Integer.MAX_VALUE)
-            .put("ttl", Long.MIN_VALUE)
-            .put("creator", getClass().getSimpleName())
-            .put("details.key1", "val1")
-            .put("details", asList(ImmutableMap.of(
-                "key2", "val2",
-                "key3", asList("val3"),
-                "key4", asList("val4a", "val4b"),
-                "key5", asList(),
-                "key.6", asList(
-                    ImmutableMap.of("key.7", "val7"),
-                    ImmutableMap.of("key.8", "val8"))))).build());
+        VMap e = VMap.create(new HashMap<String, Object>() {{
+            put("name", "my entity");
+            put("age", Integer.MAX_VALUE);
+            put("ttl", Long.MIN_VALUE);
+            put("creator", getClass().getSimpleName());
+            put("details.key1", "val1");
+            put("details", singletonList(new HashMap<String, Object>() {{
+                    put("key2", "val2");
+                    put("key3", singletonList("val3"));
+                    put("key4", asList("val4a", "val4b"));
+                    put("key5", emptyList());
+                    put("key.6", asList(
+                        new HashMap() {{ put("key.7", "val7"); }},
+                        new HashMap() {{ put("key.8", "val8"); }}));}})); }});
 
         assertTrue(e.knows("age", int.class));
         assertFalse(e.knows("ttl", boolean.class)); // not as boolean
@@ -66,7 +68,7 @@ public class SimpleVMapTest {
         assertEquals(e.one("ttl", long.class), (Long) Long.MIN_VALUE);
         assertEquals((long) e.one("ttl", long.class), Long.MIN_VALUE);
         assertEquals((long) e.one("ttl", long.class, (Long) null), Long.MIN_VALUE);
-        assertEquals((long) e.one("ttl", new TypeReference<Optional<Long>>() {})
+        assertEquals((long) e.one("ttl", V.TypeRef.Optional(Long.class))
             .orElse(null), Long.MIN_VALUE);
         assertTrue(e.one("ttl", long.class, 0L) == Long.MIN_VALUE);
 
@@ -92,17 +94,18 @@ public class SimpleVMapTest {
     }
 
     public void testPropertyAccess() {
-        Map<String, Object> map = ImmutableMap.<String, Object>of(
-            "foo", ImmutableMap.of(
-                "bar.cat", asList(ImmutableMap.of("dog", "bark"))));
+        final Map<String, Object> map = new HashMap<String, Object>() {{
+            put("foo", new HashMap<String, Object>() {{
+                put("bar.cat", singletonList(
+                    new HashMap<String, Object>() {{ put("dog", "bark"); }})); }}); }};
 
         assertEquals(V.one(V.get(map, "foo.bar.cat.dog"), String.class), "bark");
     }
 
     public void testArraySupport() {
-        Map<String, Object> map = ImmutableMap.<String, Object>of(
-            "foo", ImmutableMap.of(
-                "bar.cat", new String[] { "1", "2", "3" }));
+        final Map<String, Object> map = new HashMap<String, Object>() {{
+            put("foo", new HashMap<String, Object>() {{
+                put("bar.cat", new String[] { "1", "2", "3" }); }}); }};
         assertEquals(V.one(V.get(map, "foo.bar.cat"), String.class), "1");
         assertEquals(V.many(V.get(map, "foo.bar.cat"), int.class), asList(1, 2, 3));
     }

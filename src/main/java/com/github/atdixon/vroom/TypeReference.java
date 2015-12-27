@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 /**
  * @see <a href="http://gafter.blogspot.com/2006/12/super-type-tokens.html}">http://gafter.blogspot.com/2006/12/super-type-tokens.html</a>
  */
-public abstract class TypeReference<T> {
+public abstract class TypeReference<T> implements TypeSupplier<T> {
 
     private final Type type;
 
@@ -18,7 +18,8 @@ public abstract class TypeReference<T> {
         this.type = ((ParameterizedType) superclass).getActualTypeArguments()[0];
     }
 
-    public Type getType() {
+    @Override
+    public Type get() {
         return this.type;
     }
 

@@ -58,7 +58,7 @@ public final class VMap {
 
     // ...
 
-    /** Answer unmodifiable map. todo shrink */
+    /** Answer immutable/unmodifiable {@link Map}. todo shrink */
     @SuppressWarnings("unchecked")
     public Map<String, Object> toMap() {
         return Collections.unmodifiableMap(StreamSupport.stream((Spliterator<MapEntry>) map.spliterator(), false)
@@ -68,7 +68,11 @@ public final class VMap {
     // core reads
 
     public <T> boolean knows(String key, Class<T> as) {
-        return null != one(key, as, (T) null);
+        return V.knows(V.get(map, key), as);
+    }
+
+    public <T> boolean knows(String key, TypeSupplier<T> as) {
+        return V.knows(V.get(map, key), as);
     }
 
     public <T> void one(String key, Class<T> as, Consumer<? super T> consumer) {
@@ -81,7 +85,7 @@ public final class VMap {
     }
 
     @Nonnull
-    public <T> T one(String key, TypeReference<T> as) throws NotKnownException {
+    public <T> T one(String key, TypeSupplier<T> as) throws NotKnownException {
         return V.one(V.get(map, key), as);
     }
 
@@ -91,7 +95,7 @@ public final class VMap {
     }
 
     /** Nullable. */
-    public <T> T one(String key, TypeReference<T> as, @Nullable T default_) {
+    public <T> T one(String key, TypeSupplier<T> as, @Nullable T default_) {
         return V.one(V.get(map, key), as, default_);
     }
 
@@ -101,7 +105,7 @@ public final class VMap {
     }
 
     @Nonnull
-    public <T> List<T> many(String key, TypeReference<T> as) {
+    public <T> List<T> many(String key, TypeSupplier<T> as) {
         return V.many(V.get(map, key), as);
     }
 

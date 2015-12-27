@@ -6,22 +6,37 @@ import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public final class V {
 
     private V() {}
 
+    /** Type factories. */
+    public static final class TypeRef {
+        private TypeRef() {}
+        public static <T> TypeSupplier<Optional<T>> Optional(Class<T> type) {
+            return () -> new ParameterizedTypeImpl(null, Optional.class, type);
+        }
+        public static <T> TypeSupplier<List<T>> List(Class<T> type) {
+            return () -> new ParameterizedTypeImpl(null, List.class, type);
+        }
+        public static <T> TypeSupplier<List<T>> Set(Class<T> type) {
+            return () -> new ParameterizedTypeImpl(null, Set.class, type);
+        }
+    }
+
     public static <T> boolean knows(Object value, Class<T> as) {
         return null != one(value, as, (T) null);
     }
 
-    public static <T> boolean knows(Object value, TypeReference<T> as) {
-        return null != one(value, as.getType(), (T) null);
+    public static <T> boolean knows(Object value, TypeSupplier<T> as) {
+        return null != one(value, as.get(), (T) null);
     }
 
     @Nonnull
@@ -30,8 +45,8 @@ public final class V {
     }
 
     @Nonnull
-    public static <T> T one(Object value, TypeReference<T> as) throws CannotCoerceException {
-        return one(value, as.getType());
+    public static <T> T one(Object value, TypeSupplier<T> as) throws CannotCoerceException {
+        return one(value, as.get());
     }
 
     /** Nullable. */
@@ -40,8 +55,8 @@ public final class V {
     }
 
     /** Nullable. */
-    public static <T> T one(Object value, TypeReference<T> as, @Nullable T default_) {
-        return one(value, as.getType(), default_);
+    public static <T> T one(Object value, TypeSupplier<T> as, @Nullable T default_) {
+        return one(value, as.get(), default_);
     }
 
     public static <T> void one(Object value, Class<T> as, Consumer<? super T> consumer) {
@@ -50,7 +65,7 @@ public final class V {
             consumer.accept(one);
     }
 
-    public static <T> void one(Object value, TypeReference<T> as, Consumer<? super T> consumer) {
+    public static <T> void one(Object value, TypeSupplier<T> as, Consumer<? super T> consumer) {
         final T one = one(value, as, (T) null);
         if (one != null)
             consumer.accept(one);
@@ -58,14 +73,15 @@ public final class V {
 
     @Nonnull
     public static <T> List<T> many(Object value, Class<T> as) {
-        return one(value, createParameterizedType(List.class, as));
+        return one(value, new ParameterizedTypeImpl(null, List.class, as));
     }
 
     @Nonnull
-    public static <T> List<T> many(Object value, TypeReference<T> as) {
-        return one(value, createParameterizedType(List.class, as.getType()));
+    public static <T> List<T> many(Object value, TypeSupplier<T> as) {
+        return one(value, new ParameterizedTypeImpl(null, List.class, as.get()));
     }
 
+    @Nonnull
     private static <T> T one(Object value, Type as) throws CannotCoerceException {
         try {
             final T coerced = CoercionKilt.coerce(as, value);
@@ -77,25 +93,14 @@ public final class V {
         }
     }
 
-    private static <T> T one(Object value, Type as, T default_) {
+    /** Nullable. */
+    private static <T> T one(Object value, Type as, @Nullable T default_) {
         try {
             final T coerced = CoercionKilt.coerce(as, value);
             return coerced != null ? coerced : default_;
         } catch (FastCannotCoerceException e) {
             return default_;
         }
-    }
-
-    private static ParameterizedType createParameterizedType(final Type rawType, final Type... actualTypeArguments) {
-        return new ParameterizedType() {
-            @Override public Type[] getActualTypeArguments() {
-                return actualTypeArguments;
-            }
-            @Override public Type getRawType() {
-                return rawType;
-            }
-            @Override public Type getOwnerType() {
-                return null; }};
     }
 
     public static Object get(Map<String, Object> map, String key) {

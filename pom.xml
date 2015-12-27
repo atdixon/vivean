@@ -50,32 +50,100 @@
   </scm>
 
     <dependencies>
-        <!-- todo: get rid of guava, where to get @Nullable, and shrink+rewrite w/ shade -->
+        <!-- shaded dependencies -->
         <dependency>
             <groupId>org.clojure</groupId>
             <artifactId>clojure</artifactId>
             <version>1.7.0</version>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
         </dependency>
+        <!-- /shaded dependencies -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8.21</version>
+            <version>6.9.10</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <createSourcesJar>true</createSourcesJar>
+                            <filters>
+                                <filter>
+                                    <artifact>org.clojure:clojure</artifact>
+                                    <includes>
+                                        <include>clojure/lang/PersistentHashMap**.class</include>
+                                        <include>clojure/lang/AFn**.class</include>
+                                        <include>clojure/lang/APersistentMap**.class</include>
+                                        <include>clojure/lang/ATransientMap**.class</include>
+                                        <include>clojure/lang/AMapEntry**.class</include>
+                                        <include>clojure/lang/MapEntry**.class</include>
+                                        <include>clojure/lang/Util**.class</include>
+                                        <include>clojure/lang/APersistentVector**.class</include>
+                                        <include>clojure/lang/Murmur3.class</include>
+                                        <include>clojure/lang/Box.class</include>
+                                        <include>clojure/lang/Associative.class</include>
+                                        <include>clojure/lang/Counted.class</include>
+                                        <include>clojure/lang/Seqable.class</include>
+                                        <include>clojure/lang/Sequential.class</include>
+                                        <include>clojure/lang/ArityException.class</include>
+                                        <include>clojure/lang/MapEquivalence.class</include>
+                                        <include>clojure/lang/Reversible.class</include>
+                                        <include>clojure/lang/Indexed.class</include>
+                                        <include>clojure/lang/IPersistentStack.class</include>
+                                        <include>clojure/lang/IPersistentVector.class</include>
+                                        <include>clojure/lang/IPersistentMap.class</include>
+                                        <include>clojure/lang/ISeq.class</include>
+                                        <include>clojure/lang/IFn.class</include>
+                                        <include>clojure/lang/IObj.class</include>
+                                        <include>clojure/lang/IEditableCollection.class</include>
+                                        <include>clojure/lang/IHashEq.class</include>
+                                        <include>clojure/lang/IPersistentCollection.class</include>
+                                        <include>clojure/lang/ITransientCollection.class</include>
+                                        <include>clojure/lang/ILookup.class</include>
+                                        <include>clojure/lang/IMeta.class</include>
+                                        <include>clojure/lang/ITransientMap.class</include>
+                                        <include>clojure/lang/ITransientAssociative.class</include>
+                                        <include>clojure/lang/IMapIterable.class</include>
+                                        <include>clojure/lang/IMapEntry.class</include>
+                                    </includes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>clojure.lang</pattern>
+                                    <shadedPattern>com.github.atdixon.vroom.swipe</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <transformers>
+                                <!-- copy over MANIFEST.MF from unshaded jar, but mark jar as shaded too -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <X-Build-Shaded>true</X-Build-Shaded>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
