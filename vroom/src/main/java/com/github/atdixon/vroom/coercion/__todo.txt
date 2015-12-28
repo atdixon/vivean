@@ -28,3 +28,5 @@
 
     site.one("webpres", String.class, result::add); // to add to list
                 ... // to add to map
+
+-- vmap equals is wrt to some Schema/Schematic

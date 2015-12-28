@@ -1,7 +1,7 @@
 package com.github.atdixon.vroom;
 
 import clojure.lang.IPersistentMap;
-import com.github.atdixon.vroom.coercion.CoercionKilt;
+import com.github.atdixon.vroom.coercion.Kilt;
 import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
 
 import javax.annotation.Nonnull;
@@ -68,7 +68,7 @@ public final class V {
     @Nonnull
     private static <T> T one(Object value, Type as) throws CannotCoerceException {
         try {
-            final T coerced = CoercionKilt.coerce(as, value);
+            final T coerced = Kilt.coerce(as, value);
             if (coerced == null)
                 throw new CannotCoerceException(as, value);
             return coerced;
@@ -80,7 +80,7 @@ public final class V {
     /** Nullable. */
     private static <T> T oneOr(Object value, Type as, @Nullable T default_) {
         try {
-            final T coerced = CoercionKilt.coerce(as, value);
+            final T coerced = Kilt.coerce(as, value);
             return coerced != null ? coerced : default_;
         } catch (FastCannotCoerceException e) {
             return default_;

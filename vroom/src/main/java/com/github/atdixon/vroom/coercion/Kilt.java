@@ -14,15 +14,15 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 /**
- * todo explain kilt
- * . nulls become empty collections
- * . shrinkage
- * . etc.
+ * Kilt operation, a recursive operation that specially handles <em>container</em>
+ * types (e.g., List, Set, Optional), delegating to a coercion system to handle
+ * non-container types. Null/empty items are removed from produced containers,
+ * which are themselves removed, if empty, from their parent containers.
  */
 @SuppressWarnings("unchecked")
-public final class CoercionKilt {
+public final class Kilt {
 
-    public static <T> T coerce(Type type, @Nullable Object value) {
+    @Nullable public static <T> T coerce(Type type, @Nullable Object value) {
         if (isContainer(type)) {
             if (isContainer(value)) {
                 final Type containerType = containerType(type);
