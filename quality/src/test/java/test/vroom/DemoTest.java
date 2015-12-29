@@ -17,11 +17,13 @@
  */
 package test.vroom;
 
+import com.github.atdixon.vroom.TR;
 import com.github.atdixon.vroom.VMap;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -76,10 +78,12 @@ public class DemoTest {
         assertEquals(movie.many("director", String.class),
             Collections.emptyList());
 
-        assertEquals(movie.oneOr("sub-object", Map.class, null),
+        final Map<String, Object> sub = movie.oneOr("sub-object", TR.Map(), null);
+        assertEquals(sub,
             new HashMap<String, Object>() {{
                 put("tag", "red"); }});
-        assertEquals(movie.many("sub-object", Map.class),
+        final List<Map<String, Object>> subs = movie.many("sub-object", TR.Map());
+        assertEquals(subs,
             asList(
             new HashMap<String, Object>() {{
                 put("tag", "red"); }},

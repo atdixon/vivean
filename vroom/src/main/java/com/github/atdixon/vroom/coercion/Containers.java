@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.github.atdixon.vroom.coercion.Util.rawTypeOf;
@@ -65,6 +66,10 @@ public final class Containers {
         return Object.class;
     }
 
+    public static void forEach(Object container, Consumer<Object> c) {
+        forEach(container, v -> { c.accept(v); return true; });
+    }
+
     /** Iterate until f answer false. */
     public static void forEach(Object container, Function<Object, Boolean> f) {
         if (container instanceof Iterable) {
@@ -101,6 +106,25 @@ public final class Containers {
             return !((Optional) value).isPresent();
         }
         return false;
+    }
+
+    public static int size(Object value) {
+        if (value instanceof Iterable) {
+            if (value instanceof Collection) {
+                return ((Collection<?>) value).size();
+            } else {
+                final int[] size = new int[1];
+                ((Iterable<?>) value).forEach(v -> ++size[0]);
+                return size[0];
+            }
+        }
+        if (value instanceof Object[]) {
+            return ((Object[]) value).length;
+        }
+        if (value instanceof Optional) {
+            return ((Optional) value).isPresent() ? 1 : 0;
+        }
+        throw new IllegalArgumentException();
     }
 
     @SuppressWarnings("unchecked")

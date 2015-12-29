@@ -1,10 +1,9 @@
 package com.github.atdixon.vroom;
 
-import clojure.lang.IPersistentMap;
-import clojure.lang.PersistentHashMap;
 import com.github.atdixon.vroom.coercion.Coercion;
 import com.github.atdixon.vroom.coercion.CoercionRegistry;
 import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
+import org.pcollections.PMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,38 +46,40 @@ public final class VMap {
 
     // producers
 
+    public VMap assoc(String key, VMap val) {
+        return assoc(key, val.toMap());
+    }
+
     @SuppressWarnings("unchecked")
     public VMap assoc(String key, Object val) {
-        final IPersistentMap r = (map instanceof IPersistentMap)
-            ? (IPersistentMap) map : PersistentHashMap.create(map);
-        if (val == null) {
-            if (r.valAt(key) == null) {
+        final Object useVal = Shrink.shrinkToNull(val);
+        if (useVal == null) {
+            if (map.get(key) == null) {
                 return this;
             } else {
-                return new VMap((Map<String, ?>) r.without(key));
+                return new VMap((Map<String, ?>)
+                    V.one(map, PMap.class).minus(key));
             }
         } else {
-            if (val.equals(r.valAt(key))) {
+            if (useVal.equals(map.get(key))) {
                 return this;
             } else {
-                return new VMap((Map<String, ?>) r.assoc(key, val));
+                return new VMap((Map<String, ?>)
+                    V.one(map, PMap.class).plus(key, useVal));
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     public VMap without(String key) {
-        final IPersistentMap r = (map instanceof IPersistentMap)
-            ? (IPersistentMap) map : PersistentHashMap.create(map);
-        return new VMap((Map<String, ?>) r.without(key));
+        return new VMap((Map<String, ?>)
+            V.one(map, PMap.class).minus(key));
     }
 
-    // ...
-
-    /** Answer immutable/unmodifiable {@link Map}. todo shrink */
+    /** Answer as <em>shrunk</em>, immutable {@link Map}. */
     @SuppressWarnings("unchecked")
     public Map<String, Object> toMap() {
-        return Collections.unmodifiableMap(map);
+        return Collections.unmodifiableMap(Shrink.shrink(map));
     }
 
     // core reads

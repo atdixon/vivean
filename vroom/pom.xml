@@ -33,9 +33,9 @@
     <dependencies>
         <!-- shaded dependencies -->
         <dependency>
-            <groupId>org.clojure</groupId>
-            <artifactId>clojure</artifactId>
-            <version>1.7.0</version>
+            <groupId>org.pcollections</groupId>
+            <artifactId>pcollections</artifactId>
+            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -59,51 +59,9 @@
                         <configuration>
                             <minimizeJar>true</minimizeJar>
                             <createSourcesJar>true</createSourcesJar>
-                            <filters>
-                                <filter>
-                                    <!-- explicitly include classes as minimizeJar includes too much -->
-                                    <artifact>org.clojure:clojure</artifact>
-                                    <includes>
-                                        <include>clojure/lang/PersistentHashMap**.class</include>
-                                        <include>clojure/lang/AFn**.class</include>
-                                        <include>clojure/lang/APersistentMap**.class</include>
-                                        <include>clojure/lang/ATransientMap**.class</include>
-                                        <include>clojure/lang/AMapEntry**.class</include>
-                                        <include>clojure/lang/MapEntry**.class</include>
-                                        <include>clojure/lang/Util**.class</include>
-                                        <include>clojure/lang/APersistentVector**.class</include>
-                                        <include>clojure/lang/Murmur3.class</include>
-                                        <include>clojure/lang/Box.class</include>
-                                        <include>clojure/lang/Associative.class</include>
-                                        <include>clojure/lang/Counted.class</include>
-                                        <include>clojure/lang/Seqable.class</include>
-                                        <include>clojure/lang/Sequential.class</include>
-                                        <include>clojure/lang/ArityException.class</include>
-                                        <include>clojure/lang/MapEquivalence.class</include>
-                                        <include>clojure/lang/Reversible.class</include>
-                                        <include>clojure/lang/Indexed.class</include>
-                                        <include>clojure/lang/IPersistentStack.class</include>
-                                        <include>clojure/lang/IPersistentVector.class</include>
-                                        <include>clojure/lang/IPersistentMap.class</include>
-                                        <include>clojure/lang/ISeq.class</include>
-                                        <include>clojure/lang/IFn.class</include>
-                                        <include>clojure/lang/IObj.class</include>
-                                        <include>clojure/lang/IEditableCollection.class</include>
-                                        <include>clojure/lang/IHashEq.class</include>
-                                        <include>clojure/lang/IPersistentCollection.class</include>
-                                        <include>clojure/lang/ITransientCollection.class</include>
-                                        <include>clojure/lang/ILookup.class</include>
-                                        <include>clojure/lang/IMeta.class</include>
-                                        <include>clojure/lang/ITransientMap.class</include>
-                                        <include>clojure/lang/ITransientAssociative.class</include>
-                                        <include>clojure/lang/IMapIterable.class</include>
-                                        <include>clojure/lang/IMapEntry.class</include>
-                                    </includes>
-                                </filter>
-                            </filters>
                             <relocations>
                                 <relocation>
-                                    <pattern>clojure.lang</pattern>
+                                    <pattern>org.pcollections</pattern>
                                     <shadedPattern>com.github.atdixon.vroom.swipe</shadedPattern>
                                 </relocation>
                             </relocations>

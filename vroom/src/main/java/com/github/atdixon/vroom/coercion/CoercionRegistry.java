@@ -1,5 +1,8 @@
 package com.github.atdixon.vroom.coercion;
 
+import org.pcollections.HashPMap;
+import org.pcollections.PMap;
+
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -23,6 +26,7 @@ public final class CoercionRegistry {
         register(new ToMap(), Map.class);
         register(new ToHashMap(), HashMap.class);
         register(new ToLinkedHashMap(), LinkedHashMap.class);
+        register(new ToPMap(), PMap.class, HashPMap.class);
 
         register(new ToByte(), Byte.class, byte.class);
         register(new ToShort(), Short.class, short.class);
@@ -61,7 +65,12 @@ public final class CoercionRegistry {
         return Objects.requireNonNull(registry.get(type), () -> "no coercion for " + type.getName());
     }
 
-    @SuppressWarnings("unchecked") @Nullable
+    /** Nullable. */
+    public static <T> T coerce(Class<T> type, @Nullable Object value) throws FastCannotCoerceException {
+        return coerce((Type) type, value);
+    }
+
+    @SuppressWarnings("unchecked") /** Nullable. */
     public static <T> T coerce(Type type, @Nullable Object value) throws FastCannotCoerceException {
         if (value == null) {
             return null;
