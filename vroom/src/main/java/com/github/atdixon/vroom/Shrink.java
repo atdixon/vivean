@@ -1,16 +1,15 @@
 package com.github.atdixon.vroom;
 
-import com.github.atdixon.vroom.coercion.CoercionRegistry;
 import com.github.atdixon.vroom.coercion.Containers;
+import org.pcollections.HashTreePMap;
 import org.pcollections.PMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /** Omit null values. Unwrap singleton values from their collections. */
 public final class Shrink {
@@ -19,20 +18,9 @@ public final class Shrink {
 
     @Nonnull
     public static Map<String, Object> shrink(@Nonnull Map<String, ?> map) {
-        return internalShrink(map, new HashSet<>());
-    }
-
-    @Nullable @SuppressWarnings("unchecked")
-    public static Object shrinkToNull(Object value) {
-        return internalShrinkToNull(value, new HashSet<>());
-    }
-
-    @Nonnull @SuppressWarnings("unchecked")
-    private static Map<String, Object> internalShrink(@Nonnull Map<String, ?> map, Set<Object> seen) {
-        final PMap<String, Object> asPMap = CoercionRegistry.coerce(PMap.class, map);
-        PMap<String, Object> answer = asPMap;
-        for (Map.Entry<String, ?> e : asPMap.entrySet()) {
-            Object s = internalShrinkToNull(e.getValue(), seen);
+        PMap<String, Object> answer = HashTreePMap.from(Collections.emptyMap());
+        for (Map.Entry<String, ?> e : map.entrySet()) {
+            Object s = shrinkToNull(e.getValue());
             if (s != null)
                 answer = answer.plus(e.getKey(), s);
         }
@@ -40,20 +28,16 @@ public final class Shrink {
     }
 
     @Nullable @SuppressWarnings("unchecked")
-    private static Object internalShrinkToNull(Object value, Set<Object> seen) {
+    public static Object shrinkToNull(Object value) {
         if (value == null) {
             return null;
         } else if (value instanceof Map) {
-            if (!seen.add(value))
-                throw new RuntimeException("recursive data structure");
-            final Map<String, Object> shrunk = internalShrink((Map<String, ?>) value, seen);
+            final Map<String, Object> shrunk = shrink((Map<String, ?>) value);
             return shrunk.isEmpty() ? null : shrunk;
         } else if (Containers.isContainer(value)) {
-            if (!seen.add(value))
-                throw new RuntimeException("recursive data structure");
             final List<Object> ss = new LinkedList<>();
             Containers.forEach(value, item -> {
-                Object s = internalShrinkToNull(item, seen);
+                Object s = shrinkToNull(item);
                 if (s != null)
                     ss.add(s);
             });
