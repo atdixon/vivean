@@ -1,5 +1,6 @@
 package com.github.atdixon.vroom;
 
+import com.github.atdixon.vroom.coercion.CanToMap;
 import com.github.atdixon.vroom.coercion.Coercion;
 import com.github.atdixon.vroom.coercion.CoercionRegistry;
 import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public final class VMap {
+public final class VMap implements CanToMap<String, Object> {
 
     static {
         CoercionRegistry.register(new Coercion() {
@@ -32,15 +33,15 @@ public final class VMap {
         return new VMap(Collections.emptyMap());
     }
 
-    public static VMap create(Map<String, ?> map) {
+    public static VMap create(Map<String, Object> map) {
         return new VMap(map);
     }
 
     // state
 
-    private final Map<String, ?> map;
+    private final Map<String, Object> map;
 
-    private VMap(Map<String, ?> map) {
+    private VMap(Map<String, Object> map) {
         this.map = map;
     }
 
@@ -57,28 +58,28 @@ public final class VMap {
             if (map.get(key) == null) {
                 return this;
             } else {
-                return new VMap((Map<String, ?>)
-                    V.one(map, PMap.class).minus(key));
+                return new VMap(V.one(map, PMap.class).minus(key));
             }
         } else {
             if (useVal.equals(map.get(key))) {
                 return this;
             } else {
-                return new VMap((Map<String, ?>)
-                    V.one(map, PMap.class).plus(key, useVal));
+                return new VMap(V.one(map, PMap.class).plus(key, useVal));
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     public VMap without(String key) {
-        return new VMap((Map<String, ?>)
-            V.one(map, PMap.class).minus(key));
+        return new VMap(V.one(map, PMap.class).minus(key));
     }
 
-    /** Answer as <em>shrunk</em>, immutable {@link Map}. */
-    @SuppressWarnings("unchecked")
+    @Override @SuppressWarnings("unchecked")
     public Map<String, Object> toMap() {
+        return Collections.unmodifiableMap(map);
+    }
+
+    public Map<String, Object> toShrunkMap() {
         return Collections.unmodifiableMap(Shrink.shrink(map));
     }
 

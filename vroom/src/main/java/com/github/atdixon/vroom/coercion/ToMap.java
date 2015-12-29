@@ -10,6 +10,9 @@ public final class ToMap implements Coercion<Map> {
         if (value instanceof Map) {
             return (Map) value;
         }
+        if (value instanceof CanToMap) {
+            return ((CanToMap) value).toMap();
+        }
         throw new FastCannotCoerceException(type, value);
     }
 
