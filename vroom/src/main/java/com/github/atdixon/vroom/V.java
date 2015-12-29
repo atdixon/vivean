@@ -1,8 +1,7 @@
 package com.github.atdixon.vroom;
 
-import clojure.lang.IPersistentMap;
-import com.github.atdixon.vroom.coercion.Kilt;
 import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
+import com.github.atdixon.vroom.coercion.Kilt;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,6 +9,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class V {
 
@@ -25,7 +25,8 @@ public final class V {
 
     @Nonnull
     public static <T> T one(Object value, Class<T> as) throws CannotCoerceException {
-        return one(value, (Type) as);
+        return (value != null && as.isAssignableFrom(value.getClass()))
+            ? as.cast(value) : one(value, (Type) as);
     }
 
     @Nonnull
@@ -88,18 +89,14 @@ public final class V {
     }
 
     public static Object get(Map<String, ?> map, String key) {
-        return get(adapt(map), key);
-    }
-
-    /*package*/ static Object get(IPersistentMap/*<String,Object>*/ map, String key) {
-        return get(adapt(map), key);
+        return map.containsKey(key) ? /*optimization*/map.get(key) : getPath(map, key);
     }
 
     /** Get and also support dot.expressions. Note that any literal key with
      * a dot in it is preferred for answer before 'navigating' dot. */
-    private static Object get(MapLike map, String key) {
+    private static Object getPath(Map map, String key) {
         final String[] parts = key.split("\\.");
-        MapLike curr = map; // invariant: curr = next, if next is a map.
+        Map curr = map; // invariant: curr = next, if next is a map.
         Object next = null; // invariant: next found value
         int i = 0; // inv: curr index into parts
         for (;;) {
@@ -120,7 +117,7 @@ public final class V {
             }
             // assert: if no next -> next == null
             if (knows(next, Map.class)) {
-                curr = adapt(one(next, new TypeReference<Map<String, Object>>() {}));
+                curr = one(next, new TypeReference<Map<String, Object>>() {});
             } else {
                 return null; // no such paths
             }
@@ -139,30 +136,9 @@ public final class V {
         return buf.toString();
     }
 
-    private static MapLike adapt(final IPersistentMap/*<String,?>*/ map) {
-        return new MapLike() {
-            @Override public Object get(String key) {
-                return map.valAt(key);
-            }
-            @Override public boolean containsKey(String key) {
-                return map.containsKey(key);
-            }};
-    }
-
-    private static MapLike adapt(final Map<String, ?> map) {
-        return new MapLike() {
-            @Override public Object get(String key) {
-                return map.get(key);
-            }
-            @Override public boolean containsKey(String key) {
-                return map.containsKey(key);
-            }};
-    }
-
-    /** Internal. */
-    private interface MapLike {
-        Object get(String key);
-        boolean containsKey(String key);
+    private static void requireNonNull(Object value, Supplier<RuntimeException> exceptionSupplier) {
+        if (value == null)
+            throw exceptionSupplier.get();
     }
 
 }

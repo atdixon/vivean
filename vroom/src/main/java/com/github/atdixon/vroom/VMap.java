@@ -1,7 +1,6 @@
 package com.github.atdixon.vroom;
 
 import clojure.lang.IPersistentMap;
-import clojure.lang.MapEntry;
 import clojure.lang.PersistentHashMap;
 import com.github.atdixon.vroom.coercion.Coercion;
 import com.github.atdixon.vroom.coercion.CoercionRegistry;
@@ -13,10 +12,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public final class VMap {
 
@@ -34,41 +30,47 @@ public final class VMap {
     // static factory methods
 
     public static VMap create() {
-        return new VMap(PersistentHashMap.create());
+        return new VMap(Collections.emptyMap());
     }
 
     public static VMap create(Map<String, ?> map) {
-        return new VMap(PersistentHashMap.create(map));
+        return new VMap(map);
     }
 
     // state
 
-    private final IPersistentMap/*<String,?>*/ map;
+    private final Map<String, ?> map;
 
-    private VMap(IPersistentMap/*<String,?>*/ map) {
+    private VMap(Map<String, ?> map) {
         this.map = map;
     }
 
     // producers
 
+    @SuppressWarnings("unchecked")
     public VMap assoc(String key, Object val) {
+        final IPersistentMap r = (map instanceof IPersistentMap)
+            ? (IPersistentMap) map : PersistentHashMap.create(map);
         if (val == null) {
-            if (map.valAt(key) == null) {
+            if (r.valAt(key) == null) {
                 return this;
             } else {
-                return new VMap(map.without(key));
+                return new VMap((Map<String, ?>) r.without(key));
             }
         } else {
-            if (val.equals(map.valAt(key))) {
+            if (val.equals(r.valAt(key))) {
                 return this;
             } else {
-                return new VMap(map.assoc(key, val));
+                return new VMap((Map<String, ?>) r.assoc(key, val));
             }
         }
     }
 
+    @SuppressWarnings("unchecked")
     public VMap without(String key) {
-        return new VMap(map.without(key));
+        final IPersistentMap r = (map instanceof IPersistentMap)
+            ? (IPersistentMap) map : PersistentHashMap.create(map);
+        return new VMap((Map<String, ?>) r.without(key));
     }
 
     // ...
@@ -76,8 +78,7 @@ public final class VMap {
     /** Answer immutable/unmodifiable {@link Map}. todo shrink */
     @SuppressWarnings("unchecked")
     public Map<String, Object> toMap() {
-        return Collections.unmodifiableMap(StreamSupport.stream((Spliterator<MapEntry>) map.spliterator(), false)
-            .collect(Collectors.toMap(e -> (String) e.key(), e -> (Object) e.val())));
+        return Collections.unmodifiableMap(map);
     }
 
     // core reads
@@ -100,12 +101,20 @@ public final class VMap {
 
     @Nonnull
     public <T> T one(String key, Class<T> as) throws NotKnownException {
-        return V.one(V.get(map, key), as);
+        try {
+            return V.one(V.get(map, key), as);
+        } catch (CannotCoerceException e) {
+            throw new NotKnownException(key, e);
+        }
     }
 
     @Nonnull
     public <T> T one(String key, TypeSupplier<T> as) throws NotKnownException {
-        return V.one(V.get(map, key), as);
+        try {
+            return V.one(V.get(map, key), as);
+        } catch (CannotCoerceException e) {
+            throw new NotKnownException(key, e);
+        }
     }
 
     /** Nullable. */
@@ -127,8 +136,6 @@ public final class VMap {
     public <T> List<T> many(String key, TypeSupplier<T> as) {
         return V.many(V.get(map, key), as);
     }
-
-    // pretties
 
     // niceties
 
