@@ -2,12 +2,14 @@ package test.vroom;
 
 import com.github.atdixon.vroom.V;
 import com.github.atdixon.vroom.VMap;
+import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class __Driver {
+@Test(groups = "perf", enabled = false)
+public final class PerformanceTest {
 
     public static void main(String[] args) {
 
