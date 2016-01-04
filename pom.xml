@@ -149,6 +149,9 @@
     <profiles>
         <profile>
             <id>release</id>
+            <modules>
+                <module>vroom</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
