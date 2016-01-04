@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.github.atdixon</groupId>
         <artifactId>vroom-parent</artifactId>
-        <version>0.3.2-SNAPSHOT</version>
+        <version>0.3.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
