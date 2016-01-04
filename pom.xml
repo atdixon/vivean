@@ -19,7 +19,7 @@
 
     <groupId>com.github.atdixon</groupId>
     <artifactId>vroom-parent</artifactId>
-    <version>0.3.3-SNAPSHOT</version>
+    <version>0.3.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
