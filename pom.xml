@@ -24,6 +24,7 @@
 
     <name>Vroom Parent POM</name>
     <description>Vroom Parent POM</description>
+    <url>https://github.com/atdixon/vroom</url>
 
     <licenses>
         <license>
