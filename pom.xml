@@ -19,7 +19,7 @@
 
     <groupId>com.github.atdixon</groupId>
     <artifactId>vroom-parent</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -154,6 +154,9 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip> <!-- javadoc gen causing release issues -->
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
