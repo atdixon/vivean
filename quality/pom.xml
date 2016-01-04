@@ -30,6 +30,12 @@
     <name>Vroom Quality Suite</name>
     <description>Vroom Quality Suite</description>
 
+    <properties>
+        <!-- no need for quality suite to be deployed during release -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.github.atdixon</groupId>
@@ -44,17 +50,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
