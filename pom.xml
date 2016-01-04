@@ -22,6 +22,9 @@
     <version>0.3.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>Vroom Parent POM</name>
+    <description>Vroom Parent POM</description>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>

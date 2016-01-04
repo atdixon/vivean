@@ -27,6 +27,7 @@
     <artifactId>vroom</artifactId>
     <packaging>jar</packaging>
 
+    <name>Vroom</name>
     <description>Work immutably, robustly and in a knowledge-oriented way with Entity maps in Java.</description>
     <url>https://github.com/atdixon/vroom</url>
 

@@ -27,6 +27,9 @@
     <artifactId>vroom-quality</artifactId>
     <packaging>jar</packaging>
 
+    <name>Vroom Quality Suite</name>
+    <description>Vroom Quality Suite</description>
+
     <dependencies>
         <dependency>
             <groupId>com.github.atdixon</groupId>
