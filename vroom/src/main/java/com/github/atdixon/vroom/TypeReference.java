@@ -4,7 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * @see <a href="http://gafter.blogspot.com/2006/12/super-type-tokens.html}">http://gafter.blogspot.com/2006/12/super-type-tokens.html</a>
+ * @see <a href="http://gafter.blogspot.com/2006/12/super-type-tokens.html">http://gafter.blogspot.com/2006/12/super-type-tokens.html</a>
  */
 public abstract class TypeReference<T> implements TypeSupplier<T> {
 
