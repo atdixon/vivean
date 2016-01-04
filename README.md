@@ -13,3 +13,6 @@ Available in Maven Central. Use:
 TODO
     -- optimizations
     -- performance benchmarks
+    
+TODO
+    -- develop page: explain speration of quality and library
