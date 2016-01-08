@@ -16,17 +16,6 @@ import java.util.function.Consumer;
 
 public final class VMap implements CanToMap<String, Object> {
 
-    static {
-        CoercionRegistry.register(new Coercion() {
-            @SuppressWarnings("unchecked") @Nullable @Override
-            public Object coerce(Type type, Object value) throws FastCannotCoerceException {
-                if (value.getClass() == VMap.class)
-                    return value;
-                if (value instanceof Map)
-                    return VMap.create((Map<String, Object>) value);
-                throw new FastCannotCoerceException(type, value); }}, VMap.class);
-    }
-
     // static factory methods
 
     public static VMap create() {

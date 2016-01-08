@@ -111,4 +111,11 @@ public class SimpleVMapTest {
         assertEquals(V.many(V.get(map, "foo.bar.cat"), int.class), asList(1, 2, 3));
     }
 
+    public void testVMapCoercion() {
+        assertEquals(V.many(asList(
+            new HashMap<String, Object>() {{ put("name", "foo"); }},
+            new HashMap<String, Object>() {{ put("name", "bar"); }}
+        ), VMap.class).size(), 2);
+    }
+
 }

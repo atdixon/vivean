@@ -1,5 +1,7 @@
 package com.github.atdixon.vroom;
 
+import com.github.atdixon.vroom.coercion.Coercion;
+import com.github.atdixon.vroom.coercion.CoercionRegistry;
 import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
 import com.github.atdixon.vroom.coercion.Kilt;
 
@@ -12,6 +14,19 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class V {
+
+    static {
+        // use static initializer in V to register VMap coercion b/c V class is guaranteed
+        // to be loaded before coercions are attempted through V system.
+        CoercionRegistry.register(new Coercion() {
+            @SuppressWarnings("unchecked") @Nullable @Override
+            public Object coerce(Type type, Object value) throws FastCannotCoerceException {
+                if (value.getClass() == VMap.class)
+                    return value;
+                if (value instanceof Map)
+                    return VMap.create((Map<String, Object>) value);
+                throw new FastCannotCoerceException(type, value); }}, VMap.class);
+    }
 
     private V() {}
 

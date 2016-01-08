@@ -17,7 +17,7 @@ public final class TR {
         return () -> new ParameterizedTypeImpl(null, List.class, type);
     }
 
-    public static <T> TypeSupplier<List<T>> Set(Class<T> type) {
+    public static <T> TypeSupplier<Set<T>> Set(Class<T> type) {
         return () -> new ParameterizedTypeImpl(null, Set.class, type);
     }
 
