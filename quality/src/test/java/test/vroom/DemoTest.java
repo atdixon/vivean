@@ -19,6 +19,7 @@ package test.vroom;
 
 import com.github.atdixon.vroom.TR;
 import com.github.atdixon.vroom.VMap;
+import com.github.atdixon.vroom.Vget;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
@@ -109,6 +110,16 @@ public class DemoTest {
                 VMap.create(new HashMap<String, Object>() {{
                     put("tag", "green");
                 }}).toMap()));
+
+        // Vget
+        final Map<String, Object> map = new HashMap<String, Object>() {{
+            put("foo", new HashMap<String, Object>() {{
+                put("bar", 1);
+                put("bar.cat", "true");
+            }});
+        }};
+        assertEquals(Vget.oneInt(map, "foo.bar"), 1);
+        assertEquals(Vget.oneBoolean(map, "foo.bar.cat"), true);
     }
 
 }

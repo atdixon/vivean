@@ -23,6 +23,7 @@ import com.github.atdixon.vroom.V;
 import com.github.atdixon.vroom.VMap;
 import org.testng.annotations.Test;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -103,12 +104,24 @@ public class SimpleVMapTest {
         assertEquals(V.one(V.get(map, "foo.bar.cat.dog"), String.class), "bark");
     }
 
-    public void testArraySupport() {
+    public void testCollectionSupport() {
         final Map<String, Object> map = new HashMap<String, Object>() {{
             put("foo", new HashMap<String, Object>() {{
                 put("bar.cat", new String[] { "1", "2", "3" }); }}); }};
+        assertEquals(V.one(V.get(map, "foo.bar.cat"), new TypeReference<Collection<Integer>>() {}),
+            asList(1, 2, 3));
+        assertEquals(V.one(V.get(map, "foo.bar.cat"), TR.List(Integer.class)), asList(1, 2, 3));
+    }
+
+    public void testArraySupport() {
+        final Map<String, Object> map = new HashMap<String, Object>() {{
+            put("foo", new HashMap<String, Object>() {{
+                put("bar.cat", new String[] { "1", "2", "3" });
+                put("bar.dog", asList("4", "5", 6));}}); }};
         assertEquals(V.one(V.get(map, "foo.bar.cat"), String.class), "1");
         assertEquals(V.many(V.get(map, "foo.bar.cat"), int.class), asList(1, 2, 3));
+        // convert to array
+        assertEquals(asList(V.one(V.get(map, "foo.bar.dog"), Integer[].class)), asList(4, 5, 6));
     }
 
     public void testVMapCoercion() {

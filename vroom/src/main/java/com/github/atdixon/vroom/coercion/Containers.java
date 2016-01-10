@@ -1,5 +1,6 @@
 package com.github.atdixon.vroom.coercion;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -134,8 +135,11 @@ public final class Containers {
             if (values.isEmpty() && empties.containsKey(raw)) {
                 return empties.get(raw);
             }
-            if (Object[].class.equals(raw)) {
-                return values.toArray(new Object[values.size()]);
+            if (raw.isArray()) {
+                final Object answer = Array.newInstance(raw.getComponentType(), values.size());
+                for (int i = 0; i < values.size(); ++i)
+                    Array.set(answer, i, values.get(i));
+                return answer;
             }
             if (Collection.class.isAssignableFrom(raw)) {
                 final Collection answer;
@@ -145,6 +149,8 @@ public final class Containers {
                     answer = new ArrayList();
                 } else if (Set.class.equals(raw)) {
                     answer = new LinkedHashSet();
+                } else if (Collection.class.equals(raw)) {
+                    answer = new ArrayList();
                 } else {
                     throw new IllegalArgumentException();
                 }
