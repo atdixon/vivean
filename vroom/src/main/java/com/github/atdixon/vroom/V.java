@@ -150,10 +150,4 @@ public final class V {
         }
         return buf.toString();
     }
-
-    private static void requireNonNull(Object value, Supplier<RuntimeException> exceptionSupplier) {
-        if (value == null)
-            throw exceptionSupplier.get();
-    }
-
 }
