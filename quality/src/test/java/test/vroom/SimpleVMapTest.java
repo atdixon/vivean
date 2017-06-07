@@ -17,16 +17,12 @@
  */
 package test.vroom;
 
-import com.github.atdixon.vroom.TS;
-import com.github.atdixon.vroom.TypeReference;
 import com.github.atdixon.vroom.V;
 import com.github.atdixon.vroom.VMap;
 import org.testng.annotations.Test;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -57,40 +53,31 @@ public class SimpleVMapTest {
                         new HashMap() {{ put("key.7", "val7"); }},
                         new HashMap() {{ put("key.8", "val8"); }}));}})); }});
 
-        assertTrue(e.knows("age", int.class));
-        assertFalse(e.knows("ttl", boolean.class)); // not as boolean
+        assertTrue(e.one("age", int.class).isPresent());
+        assertFalse(e.one("ttl", boolean.class).isPresent()); // not as boolean
 
-        assertEquals(e.one("age", Integer.class), (Integer) Integer.MAX_VALUE);
-        assertEquals(e.one("age", Integer.class), (Integer) Integer.MAX_VALUE);
-        assertEquals(e.oneOr("age", Integer.class, null), (Integer) Integer.MAX_VALUE);
-        assertEquals(e.one("age", new TypeReference<Optional<Integer>>() {})
-            .orElse(null), (Integer) Integer.MAX_VALUE);
-        assertTrue(e.oneOr("age", int.class, 0) == Integer.MAX_VALUE);
+        assertEquals(e.one("age", Integer.class).get(), (Integer) Integer.MAX_VALUE);
+        assertEquals(e.one("age", Integer.class).get(), (Integer) Integer.MAX_VALUE);
+        assertEquals(e.one("age", Integer.class).orElse(null), (Integer) Integer.MAX_VALUE);
+        assertTrue(e.one("age", int.class).orElse(0) == Integer.MAX_VALUE);
 
-        assertEquals(e.one("ttl", long.class), (Long) Long.MIN_VALUE);
-        assertEquals((long) e.one("ttl", long.class), Long.MIN_VALUE);
-        assertEquals((long) e.oneOr("ttl", long.class, null), Long.MIN_VALUE);
-        assertEquals((long) e.one("ttl", TS.Optional(Long.class))
-            .orElse(null), Long.MIN_VALUE);
-        assertTrue(e.oneOr("ttl", long.class, 0L) == Long.MIN_VALUE);
+        assertEquals(e.one("ttl", long.class).get(), (Long) Long.MIN_VALUE);
+        assertEquals((long) e.one("ttl", long.class).get(), Long.MIN_VALUE);
+        assertEquals((long) e.one("ttl", long.class).orElse(null), Long.MIN_VALUE);
+        assertTrue(e.one("ttl", long.class).orElse(0L) == Long.MIN_VALUE);
 
-        assertEquals(e.one("no-such-key", new TypeReference<Optional<Integer>>() {}).orElse(null), null);
+        assertEquals(e.one("no-such-key", Integer.class).orElse(null), null);
 
-        assertEquals(e.one("details.key1", String.class), "val1");
-        assertEquals(e.one("details.key2", String.class), "val2");
-        assertEquals(e.one("details.key3", String.class), "val3");
-        assertEquals(e.one("details.key4", String.class), "val4a");
-        assertEquals(e.oneOr("details.key5", String.class, null), null);
-        assertEquals(e.one("details.key.6.key.7", String.class), "val7");
+        assertEquals(e.one("details.key1", String.class).get(), "val1");
+        assertEquals(e.one("details.key2", String.class).get(), "val2");
+        assertEquals(e.one("details.key3", String.class).get(), "val3");
+        assertEquals(e.one("details.key4", String.class).get(), "val4a");
+        assertEquals(e.one("details.key5", String.class).orElse(null), null);
+        assertEquals(e.one("details.key.6.key.7", String.class).get(), "val7");
 
-        assertNull(e.oneOr("details.missing.rating", int.class, null));
+        assertNull(e.one("details.missing.rating", int.class).orElse(null));
         try {
-            assertEquals((int) e.one("details.missing.rating", int.class), 4);
-            fail();
-        } catch (Exception ex) { /* ok */ }
-
-        try {
-            e.one("isMissing", boolean.class);
+            assertEquals((int) e.one("details.missing.rating", int.class).get(), 4);
             fail();
         } catch (Exception ex) { /* ok */ }
     }
@@ -101,16 +88,15 @@ public class SimpleVMapTest {
                 put("bar.cat", singletonList(
                     new HashMap<String, Object>() {{ put("dog", "bark"); }})); }}); }};
 
-        assertEquals(V.one(V.get(map, "foo.bar.cat.dog"), String.class), "bark");
+        assertEquals(V.one(V.get(map, "foo.bar.cat.dog"), String.class).get(), "bark");
     }
 
     public void testCollectionSupport() {
         final Map<String, Object> map = new HashMap<String, Object>() {{
             put("foo", new HashMap<String, Object>() {{
                 put("bar.cat", new String[] { "1", "2", "3" }); }}); }};
-        assertEquals(V.one(V.get(map, "foo.bar.cat"), new TypeReference<Collection<Integer>>() {}),
+        assertEquals(V.many(V.get(map, "foo.bar.cat"), Integer.class),
             asList(1, 2, 3));
-        assertEquals(V.one(V.get(map, "foo.bar.cat"), TS.List(Integer.class)), asList(1, 2, 3));
     }
 
     public void testArraySupport() {
@@ -118,10 +104,8 @@ public class SimpleVMapTest {
             put("foo", new HashMap<String, Object>() {{
                 put("bar.cat", new String[] { "1", "2", "3" });
                 put("bar.dog", asList("4", "5", 6));}}); }};
-        assertEquals(V.one(V.get(map, "foo.bar.cat"), String.class), "1");
+        assertEquals(V.one(V.get(map, "foo.bar.cat"), String.class).get(), "1");
         assertEquals(V.many(V.get(map, "foo.bar.cat"), int.class), asList(1, 2, 3));
-        // convert to array
-        assertEquals(asList(V.one(V.get(map, "foo.bar.dog"), Integer[].class)), asList(4, 5, 6));
     }
 
     public void testVMapCoercion() {

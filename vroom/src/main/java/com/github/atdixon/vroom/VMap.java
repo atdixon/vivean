@@ -4,16 +4,15 @@ import com.github.atdixon.vroom.coercion.CanToMap;
 import org.pcollections.PMap;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Optional;
 
 public final class VMap implements CanToMap<String, Object> {
 
-    // static factory methods
+    // -- factory --
 
     public static VMap create() {
         return new VMap(Collections.emptyMap());
@@ -23,7 +22,7 @@ public final class VMap implements CanToMap<String, Object> {
         return new VMap(map);
     }
 
-    // state
+    // -- state --
 
     private final Map<String, ?> map;
 
@@ -31,7 +30,7 @@ public final class VMap implements CanToMap<String, Object> {
         this.map = new HashMap<>(map);
     }
 
-    // producers
+    // -- producers --
 
     public VMap assoc(String key, VMap val) {
         return assoc(key, val.toMap());
@@ -44,20 +43,20 @@ public final class VMap implements CanToMap<String, Object> {
             if (map.get(key) == null) {
                 return this;
             } else {
-                return new VMap(V.one(map, PMap.class).minus(key));
+                return new VMap(V.one(map, PMap.class).get().minus(key));
             }
         } else {
             if (useVal.equals(map.get(key))) {
                 return this;
             } else {
-                return new VMap(V.one(map, PMap.class).plus(key, useVal));
+                return new VMap(V.one(map, PMap.class).get().plus(key, useVal));
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     public VMap without(String key) {
-        return new VMap(V.one(map, PMap.class).minus(key));
+        return new VMap(V.one(map, PMap.class).get().minus(key));
     }
 
     @Override @SuppressWarnings("unchecked")
@@ -69,50 +68,16 @@ public final class VMap implements CanToMap<String, Object> {
         return Collections.unmodifiableMap(Shrink.shrink(map));
     }
 
-    // core reads
+    // -- core reads --
 
-    public <T> boolean knows(String key, Class<T> as) {
-        return V.knows(V.get(map, key), as);
-    }
-
-    public <T> boolean knows(String key, TypeSupplier<T> as) {
-        return V.knows(V.get(map, key), as);
-    }
-
-    public <T> void one(String key, Class<T> as, Consumer<? super T> consumer) {
-        V.one(V.get(map, key), as, consumer);
-    }
-
-    public <T> void one(String key, TypeSupplier<T> as, Consumer<? super T> consumer) {
-        V.one(V.get(map, key), as, consumer);
+    @Nonnull
+    public <T> Optional<T> one(String key, Class<T> as) {
+        return V.one(V.get(map, key), as);
     }
 
     @Nonnull
-    public <T> T one(String key, Class<T> as) throws NotKnownException {
-        try {
-            return V.one(V.get(map, key), as);
-        } catch (CannotCoerceException e) {
-            throw new NotKnownException(key, e);
-        }
-    }
-
-    @Nonnull
-    public <T> T one(String key, TypeSupplier<T> as) throws NotKnownException {
-        try {
-            return V.one(V.get(map, key), as);
-        } catch (CannotCoerceException e) {
-            throw new NotKnownException(key, e);
-        }
-    }
-
-    /** Nullable. */
-    public <T> T oneOr(String key, Class<T> as, @Nullable T default_) {
-        return V.oneOr(V.get(map, key), as, default_);
-    }
-
-    /** Nullable. */
-    public <T> T oneOr(String key, TypeSupplier<T> as, @Nullable T default_) {
-        return V.oneOr(V.get(map, key), as, default_);
+    public <T> Optional<T> one(String key, TypeSupplier<T> as) {
+        return V.one(V.get(map, key), as);
     }
 
     @Nonnull
@@ -125,7 +90,7 @@ public final class VMap implements CanToMap<String, Object> {
         return V.many(V.get(map, key), as);
     }
 
-    // niceties
+    // -- nice --
 
     @Override
     public String toString() {

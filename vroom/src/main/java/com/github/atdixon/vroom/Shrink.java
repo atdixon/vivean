@@ -34,7 +34,7 @@ public final class Shrink {
         } else if (value instanceof Map) {
             final Map<String, Object> shrunk = shrink((Map<String, ?>) value);
             return shrunk.isEmpty() ? null : shrunk;
-        } else if (Containers.isContainer(value)) {
+        } else if (Containers.isContainerValue(value)) {
             final List<Object> ss = new LinkedList<>();
             Containers.forEach(value, item -> {
                 Object s = shrinkToNull(item);

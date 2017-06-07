@@ -41,7 +41,7 @@ public class VroomBenchmark {
 
     @Benchmark
     public void one_i(ThreadState state) {
-        Integer v = state.vmap.one("key/i", int.class);
+        Integer v = state.vmap.one("key/i", int.class).get();
     }
 
     @Benchmark

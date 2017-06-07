@@ -19,15 +19,13 @@ package test.vroom;
 
 import com.github.atdixon.vroom.TS;
 import com.github.atdixon.vroom.VMap;
-import com.github.atdixon.vroom.Vget;
+import com.github.atdixon.vroom.Vg;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -54,29 +52,30 @@ public class DemoTest {
         }});
 
         // access required knowledge...
-        assertEquals(movie.one("release-year", int.class), (Integer) 2015);
+        assertEquals(movie.one("release-year", int.class).get(), (Integer) 2015);
 
         // if release-year isn't present, that will throw exception.
         // more robustly, you can ask if knowledge is there first...
-        if (movie.knows("release-year", int.class))  {
-            assertEquals(movie.one("release-year", int.class), (Integer) 2015);
+        if (movie.one("release-year", int.class).isPresent()) {
+            assertEquals(movie.one("release-year", int.class).get(), (Integer) 2015);
         }
 
         // ...however, this is more succinct (and more performant):
-        movie.one("release-year", int.class, releaseYear ->
-            assertEquals(releaseYear, (Integer) 2015));
+        movie.one("release-year", int.class).ifPresent(
+            releaseYear ->
+                assertEquals(releaseYear, (Integer) 2015));
 
         // or offer a default for missing attributes...
-        assertEquals(movie.oneOr("dvd-release-year", int.class, 2016),
+        assertEquals(movie.one("dvd-release-year", int.class).orElse(2016),
             (Integer) 2016);
 
         // or use null semantics
-        if (movie.oneOr("dvd-release-year", Integer.class, null) != null) {
+        if (movie.one("dvd-release-year", Integer.class).orElse(null) != null) {
             fail();
         }
 
-        // for collections, sometimes you can only handle one...
-        assertEquals(movie.oneOr("producer", String.class, null),
+        // you may know many facts, but sometimes you can only handle one...
+        assertEquals(movie.one("producer", String.class).get(),
             "Bob Smith");
 
         // but you can upgrade your code to handle more later...
@@ -93,9 +92,13 @@ public class DemoTest {
             asList(1.0d, 2.0d, 5.0d));
 
         // access non-primitive lists
-        final Map<String, Object> sub = movie.oneOr("sub-object", TS.Map(), null);
+        final Map<String, Object> sub = movie.one("sub-object", TS.Map()).get();
         assertEquals(sub,
             new HashMap<String, Object>() {{
+                put("tag", "red"); }});
+        final Map<String, String> subx = movie.one("sub-object", TS.Map(String.class)).get();
+        assertEquals(subx,
+            new HashMap<String, String>() {{
                 put("tag", "red"); }});
         final List<Map<String, Object>> subs = movie.many("sub-object", TS.Map());
         assertEquals(subs,
@@ -105,21 +108,10 @@ public class DemoTest {
             new HashMap<String, Object>() {{
                 put("tag", "green"); }}));
 
-        // as Set of Maps...
-        final Set<Map<String, Object>> subSet = movie.one("sub-object", TS.Set(TS.Map()));
-        assertEquals(subSet,
-            new HashSet<Map<String, Object>>(asList(
-                new HashMap<String, Object>() {{
-                    put("tag", "red");
-                }},
-                new HashMap<String, Object>() {{
-                    put("tag", "green");
-                }})));
-
         // toMap support
         assertEquals(movie.toMap().get("title"), "Super Movie");
 
-        assertEquals(movie.oneOr("sub-object", VMap.class, null)
+        assertEquals(movie.one("sub-object", VMap.class).orElse(null)
                 .toMap(),
             VMap.create(new HashMap<String, Object>() {{
                 put("tag", "red");
@@ -136,15 +128,15 @@ public class DemoTest {
                     put("tag", "green");
                 }}).toMap()));
 
-        // Vget
+        // Vg
         final Map<String, Object> map = new HashMap<String, Object>() {{
             put("foo", new HashMap<String, Object>() {{
                 put("bar", 1);
                 put("bar.cat", "true");
             }});
         }};
-        assertEquals(Vget.oneInt(map, "foo.bar"), 1);
-        assertEquals(Vget.oneBoolean(map, "foo.bar.cat"), true);
+        assertEquals(Vg.oneInt(map, "foo.bar").get(), (Integer) 1);
+        assertEquals(Vg.oneBoolean(map, "foo.bar.cat").get(), (Boolean) true);
     }
 
 }

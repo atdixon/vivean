@@ -3,7 +3,6 @@ package com.github.atdixon.vroom.coercion;
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.atdixon.vroom.coercion.Containers.containerType;
@@ -25,7 +24,7 @@ public final class Kilt {
 
     @Nullable public static <T> T coerce(Type type, @Nullable Object value) {
         if (isContainer(type)) {
-            if (isContainer(value)) {
+            if (Containers.isContainerValue(value)) {
                 final Type containerType = containerType(type);
                 final List values = new ArrayList();
                 forEach(value, v -> {
@@ -44,7 +43,7 @@ public final class Kilt {
                 }
             }
         } else {
-            if (isContainer(value)) {
+            if (Containers.isContainerValue(value)) {
                 final Object[] answer = new Object[1];
                 forEach(value, v -> {
                     final Object coerced = coerce(type, v);
