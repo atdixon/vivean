@@ -80,11 +80,11 @@ public final class Containers {
             }
             return;
         }
-        if (container instanceof Object[]) {
-            for (Object value : (Object[]) container) {
-                if (!f.apply(value)) {
+        if (container.getClass().isArray()) {
+            final int length = Array.getLength(container);
+            for (int i = 0; i < length; i++) {
+                if (!f.apply(Array.get(container, i)))
                     return;
-                }
             }
             return;
         }

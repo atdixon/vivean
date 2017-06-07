@@ -1,14 +1,10 @@
 package com.github.atdixon.vroom;
 
 import com.github.atdixon.vroom.coercion.CanToMap;
-import com.github.atdixon.vroom.coercion.Coercion;
-import com.github.atdixon.vroom.coercion.CoercionRegistry;
-import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
 import org.pcollections.PMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +18,15 @@ public final class VMap implements CanToMap<String, Object> {
         return new VMap(Collections.emptyMap());
     }
 
-    public static VMap create(Map<String, Object> map) {
+    public static VMap create(Map<String, ?> map) {
         return new VMap(map);
     }
 
     // state
 
-    private final Map<String, Object> map;
+    private final Map<String, ?> map;
 
-    private VMap(Map<String, Object> map) {
+    private VMap(Map<String, ?> map) {
         this.map = map;
     }
 

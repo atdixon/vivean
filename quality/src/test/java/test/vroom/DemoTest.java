@@ -17,15 +17,17 @@
  */
 package test.vroom;
 
-import com.github.atdixon.vroom.TR;
+import com.github.atdixon.vroom.TS;
 import com.github.atdixon.vroom.VMap;
 import com.github.atdixon.vroom.Vget;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -41,6 +43,7 @@ public class DemoTest {
             put("producer",
                 asList("Bob Smith", "Jenny Baker", "Karen Lye"));
             put("release-year", 2015);
+            put("user-ratings", new double[] {1.0, 2.0, 5.0});
             put("sub-object",
                 asList(new HashMap<String, Object>() {{
                            put("tag", "red");
@@ -83,17 +86,35 @@ public class DemoTest {
         assertEquals(movie.many("director", String.class),
             Collections.emptyList());
 
-        final Map<String, Object> sub = movie.oneOr("sub-object", TR.Map(), null);
+        // multiple container (coll, array) types are supported...
+        assertEquals(movie.many("user-ratings", Float.class),
+            asList(1.0f, 2.0f, 5.0f));
+        assertEquals(movie.many("user-ratings", Double.class),
+            asList(1.0d, 2.0d, 5.0d));
+
+        // access non-primitive lists
+        final Map<String, Object> sub = movie.oneOr("sub-object", TS.Map(), null);
         assertEquals(sub,
             new HashMap<String, Object>() {{
                 put("tag", "red"); }});
-        final List<Map<String, Object>> subs = movie.many("sub-object", TR.Map());
+        final List<Map<String, Object>> subs = movie.many("sub-object", TS.Map());
         assertEquals(subs,
             asList(
             new HashMap<String, Object>() {{
                 put("tag", "red"); }},
             new HashMap<String, Object>() {{
                 put("tag", "green"); }}));
+
+        // as Set of Maps...
+        final Set<Map<String, Object>> subSet = movie.one("sub-object", TS.Set(TS.Map()));
+        assertEquals(subSet,
+            new HashSet<Map<String, Object>>(asList(
+                new HashMap<String, Object>() {{
+                    put("tag", "red");
+                }},
+                new HashMap<String, Object>() {{
+                    put("tag", "green");
+                }})));
 
         // toMap support
         assertEquals(movie.toMap().get("title"), "Super Movie");

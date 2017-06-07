@@ -17,7 +17,7 @@
  */
 package test.vroom;
 
-import com.github.atdixon.vroom.TR;
+import com.github.atdixon.vroom.TS;
 import com.github.atdixon.vroom.TypeReference;
 import com.github.atdixon.vroom.V;
 import com.github.atdixon.vroom.VMap;
@@ -70,7 +70,7 @@ public class SimpleVMapTest {
         assertEquals(e.one("ttl", long.class), (Long) Long.MIN_VALUE);
         assertEquals((long) e.one("ttl", long.class), Long.MIN_VALUE);
         assertEquals((long) e.oneOr("ttl", long.class, null), Long.MIN_VALUE);
-        assertEquals((long) e.one("ttl", TR.Optional(Long.class))
+        assertEquals((long) e.one("ttl", TS.Optional(Long.class))
             .orElse(null), Long.MIN_VALUE);
         assertTrue(e.oneOr("ttl", long.class, 0L) == Long.MIN_VALUE);
 
@@ -110,7 +110,7 @@ public class SimpleVMapTest {
                 put("bar.cat", new String[] { "1", "2", "3" }); }}); }};
         assertEquals(V.one(V.get(map, "foo.bar.cat"), new TypeReference<Collection<Integer>>() {}),
             asList(1, 2, 3));
-        assertEquals(V.one(V.get(map, "foo.bar.cat"), TR.List(Integer.class)), asList(1, 2, 3));
+        assertEquals(V.one(V.get(map, "foo.bar.cat"), TS.List(Integer.class)), asList(1, 2, 3));
     }
 
     public void testArraySupport() {
