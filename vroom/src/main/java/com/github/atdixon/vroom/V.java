@@ -11,7 +11,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public final class V {
 
@@ -73,10 +72,10 @@ public final class V {
 
     @Nonnull
     public static <T> List<T> many(Object value, Class<T> as) {
-        return one(value, new ParameterizedTypeImpl(null, List.class, as));
+        return many(value, () -> as);
     }
 
-    @Nonnull
+    @Nonnull @SuppressWarnings("unchecked")
     public static <T> List<T> many(Object value, TypeSupplier<T> as) {
         return one(value, new ParameterizedTypeImpl(null, List.class, as.get()));
     }

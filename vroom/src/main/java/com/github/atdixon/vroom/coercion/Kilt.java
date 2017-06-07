@@ -3,6 +3,7 @@ package com.github.atdixon.vroom.coercion;
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.atdixon.vroom.coercion.Containers.containerType;

@@ -10,9 +10,10 @@ Available in Maven Central. Use:
         <version>0.3.12</version>
     </dependency>
 
-TODO
-    -- optimizations
-    -- performance benchmarks
+##### Benchmark
     
-TODO
-    -- develop page: explain speration of quality and library
+To run [jmh](http://openjdk.java.net/projects/code-tools/jmh/) benchmarks comparing VMap 
+with correlate java.util.Map operations, use:
+
+    $ mvn clean install -Pbenchmark
+

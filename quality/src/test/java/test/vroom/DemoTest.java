@@ -59,6 +59,10 @@ public class DemoTest {
             assertEquals(movie.one("release-year", int.class), (Integer) 2015);
         }
 
+        // ...however, this is more succinct (and more performant):
+        movie.one("release-year", int.class, releaseYear ->
+            assertEquals(releaseYear, (Integer) 2015));
+
         // or offer a default for missing attributes...
         assertEquals(movie.oneOr("dvd-release-year", int.class, 2016),
             (Integer) 2016);

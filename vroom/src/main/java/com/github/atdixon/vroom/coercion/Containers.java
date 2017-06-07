@@ -145,25 +145,23 @@ public final class Containers {
                 final Collection answer;
                 if (!Modifier.isAbstract(raw.getModifiers())) {
                     answer = (Collection) raw.newInstance();
+                    answer.addAll(values);
                 } else if (List.class.equals(raw)) {
-                    answer = new ArrayList();
+                    answer = new ArrayList(values);
                 } else if (Set.class.equals(raw)) {
-                    answer = new LinkedHashSet();
+                    answer = new LinkedHashSet(values);
                 } else if (Collection.class.equals(raw)) {
-                    answer = new ArrayList();
+                    answer = new ArrayList(values);
                 } else {
                     throw new IllegalArgumentException();
                 }
-                answer.addAll(values);
                 return answer;
             }
             if (Optional.class.equals(raw)) {
                 return values.isEmpty() ? Optional.empty() : Optional.of(values.iterator().next());
             }
             throw new IllegalArgumentException();
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
