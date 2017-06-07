@@ -6,7 +6,7 @@
     <parent>
         <artifactId>vroom-parent</artifactId>
         <groupId>com.github.atdixon</groupId>
-        <version>0.3.13</version>
+        <version>0.3.14-SNAPSHOT</version>
     </parent>
 
     <artifactId>vroom-bench</artifactId>
