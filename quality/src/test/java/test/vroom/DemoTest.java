@@ -38,7 +38,7 @@ import static org.testng.Assert.fail;
 public class DemoTest {
 
     public void testDemo() {
-        VMap movie = VMap.create(new HashMap<String, Object>() {{
+        final VMap movie = VMap.create(new HashMap<String, Object>() {{
             put("title", "Super Movie");
             put("producer",
                 asList("Bob Smith", "Jenny Baker", "Karen Lye"));

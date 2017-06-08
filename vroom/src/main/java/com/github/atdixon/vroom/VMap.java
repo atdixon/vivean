@@ -6,6 +6,7 @@ import org.pcollections.PMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -27,7 +28,7 @@ public final class VMap implements CanToMap<String, Object> {
     private final Map<String, ?> map;
 
     private VMap(Map<String, ?> map) {
-        this.map = map;
+        this.map = new HashMap<>(map);
     }
 
     // producers
