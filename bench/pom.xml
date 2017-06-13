@@ -4,16 +4,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>vroom-parent</artifactId>
+        <artifactId>vivean-parent</artifactId>
         <groupId>com.github.atdixon</groupId>
-        <version>0.3.14-SNAPSHOT</version>
+        <version>0.4.0-beta-SNAPSHOT</version>
     </parent>
 
-    <artifactId>vroom-bench</artifactId>
+    <artifactId>vivean-bench</artifactId>
     <packaging>jar</packaging>
 
-    <name>Vroom Microbenchmarks</name>
-    <description>Vroom Microbenchmarks</description>
+    <name>vivean Microbenchmarks</name>
+    <description>vivean Microbenchmarks</description>
 
     <properties>
         <uberjar.name>benchmarks</uberjar.name>
@@ -23,13 +23,13 @@
     <dependencies>
         <dependency>
             <groupId>com.github.atdixon</groupId>
-            <artifactId>vroom</artifactId>
+            <artifactId>vivean</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <!--
                  reactor builds in later versions of maven fail to respect dependency
                  reduced poms of dependencies that are themselves shaded jars. as a
-                 workaround we explicitly exclude all transitive deps of the uber vroom dep.
+                 workaround we explicitly exclude all transitive deps of the uber vivean dep.
                  @see https://issues.apache.org/jira/browse/MNG-5899
                 -->
                 <exclusion>

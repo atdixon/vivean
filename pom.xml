@@ -18,13 +18,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.atdixon</groupId>
-    <artifactId>vroom-parent</artifactId>
-    <version>0.3.14-SNAPSHOT</version>
+    <artifactId>vivean-parent</artifactId>
+    <version>0.4.0-beta-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Vroom Parent POM</name>
-    <description>Vroom Parent POM</description>
-    <url>https://github.com/atdixon/vroom</url>
+    <name>vivean Parent POM</name>
+    <description>vivean Parent POM</description>
+    <url>https://github.com/atdixon/vivean</url>
 
     <licenses>
         <license>
@@ -43,14 +43,14 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:atdixon/vroom.git</connection>
-        <developerConnection>scm:git:git@github.com:atdixon/vroom.git</developerConnection>
-        <url>git@github.com:atdixon/vroom.git</url>
+        <connection>scm:git:git@github.com:atdixon/vivean.git</connection>
+        <developerConnection>scm:git:git@github.com:atdixon/vivean.git</developerConnection>
+        <url>git@github.com:atdixon/vivean.git</url>
         <tag>HEAD</tag>
     </scm>
 
     <modules>
-        <module>vroom</module>
+        <module>vivean</module>
         <module>quality</module>
         <module>bench</module>
     </modules>

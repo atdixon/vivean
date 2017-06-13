@@ -19,21 +19,21 @@
 
     <parent>
         <groupId>com.github.atdixon</groupId>
-        <artifactId>vroom-parent</artifactId>
-        <version>0.3.14-SNAPSHOT</version>
+        <artifactId>vivean-parent</artifactId>
+        <version>0.4.0-beta-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>vroom-quality</artifactId>
+    <artifactId>vivean-quality</artifactId>
     <packaging>jar</packaging>
 
-    <name>Vroom Quality Suite</name>
-    <description>Vroom Quality Suite</description>
+    <name>vivean Quality Suite</name>
+    <description>vivean Quality Suite</description>
 
     <dependencies>
         <dependency>
             <groupId>com.github.atdixon</groupId>
-            <artifactId>vroom</artifactId>
+            <artifactId>vivean</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
