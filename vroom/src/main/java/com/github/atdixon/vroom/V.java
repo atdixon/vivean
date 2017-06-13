@@ -1,73 +1,45 @@
 package com.github.atdixon.vroom;
 
-import com.github.atdixon.vroom.coercion.Coercion;
 import com.github.atdixon.vroom.coercion.CoercionRegistry;
 import com.github.atdixon.vroom.coercion.FastCannotCoerceException;
 import com.github.atdixon.vroom.coercion.Kilt;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Optional;
+
+import static com.github.atdixon.vroom.coercion.Containers.isContainer;
 
 public final class V {
 
     static {
         // use static initializer in V to register VMap coercion b/c V class is guaranteed
         // to be loaded before coercions are attempted through V system.
-        CoercionRegistry.register(new Coercion() {
-            @SuppressWarnings("unchecked") @Nullable @Override
-            public Object coerce(Type type, Object value) throws FastCannotCoerceException {
-                if (value.getClass() == VMap.class)
-                    return value;
-                if (value instanceof Map)
-                    return VMap.create((Map<String, Object>) value);
-                throw new FastCannotCoerceException(type, value); }}, VMap.class);
+        CoercionRegistry.register((type, value) -> {
+            if (value.getClass() == VMap.class)
+                return value;
+            if (value instanceof Map)
+                //noinspection unchecked
+                return VMap.create((Map<String, ?>) value);
+            throw new FastCannotCoerceException(type, value); }, VMap.class);
     }
 
     private V() {}
 
-    public static <T> boolean knows(Object value, Class<T> as) {
-        return null != oneOr(value, as, null);
-    }
-
-    public static <T> boolean knows(Object value, TypeSupplier<T> as) {
-        return null != oneOr(value, as.get(), null);
+    @Nonnull
+    public static <T> Optional<T> one(Object value, Class<T> as) {
+        if (isContainer(as))
+            throw new IllegalStateException("use many()");
+        return internalOne(value, as);
     }
 
     @Nonnull
-    public static <T> T one(Object value, Class<T> as) throws CannotCoerceException {
-        return (value != null && as.isAssignableFrom(value.getClass()))
-            ? as.cast(value) : one(value, (Type) as);
-    }
-
-    @Nonnull
-    public static <T> T one(Object value, TypeSupplier<T> as) throws CannotCoerceException {
-        return one(value, as.get());
-    }
-
-    /** Nullable. */
-    public static <T> T oneOr(Object value, Class<T> as, @Nullable T default_) {
-        return oneOr(value, (Type) as, default_);
-    }
-
-    /** Nullable. */
-    public static <T> T oneOr(Object value, TypeSupplier<T> as, @Nullable T default_) {
-        return oneOr(value, as.get(), default_);
-    }
-
-    public static <T> void one(Object value, Class<T> as, Consumer<? super T> consumer) {
-        final T one = oneOr(value, as, null);
-        if (one != null)
-            consumer.accept(one);
-    }
-
-    public static <T> void one(Object value, TypeSupplier<T> as, Consumer<? super T> consumer) {
-        final T one = oneOr(value, as, null);
-        if (one != null)
-            consumer.accept(one);
+    public static <T> Optional<T> one(Object value, TypeSupplier<T> as) {
+        if (isContainer(as.get()))
+            throw new IllegalStateException("use many()");
+        return internalOne(value, as.get());
     }
 
     @Nonnull
@@ -77,28 +49,16 @@ public final class V {
 
     @Nonnull @SuppressWarnings("unchecked")
     public static <T> List<T> many(Object value, TypeSupplier<T> as) {
-        return one(value, new ParameterizedTypeImpl(null, List.class, as.get()));
+        return (List<T>) internalOne(value,
+            new ParameterizedTypeImpl(null, List.class, as.get())).get();
     }
 
-    @Nonnull
-    private static <T> T one(Object value, Type as) throws CannotCoerceException {
+    private static <T> Optional<T> internalOne(Object value, Type as) {
         try {
             final T coerced = Kilt.coerce(as, value);
-            if (coerced == null)
-                throw new CannotCoerceException(as, value);
-            return coerced;
+            return coerced != null ? Optional.of(coerced) : Optional.empty();
         } catch (FastCannotCoerceException e) {
-            throw new CannotCoerceException(e);
-        }
-    }
-
-    /** Nullable. */
-    private static <T> T oneOr(Object value, Type as, @Nullable T default_) {
-        try {
-            final T coerced = Kilt.coerce(as, value);
-            return coerced != null ? coerced : default_;
-        } catch (FastCannotCoerceException e) {
-            return default_;
+            return Optional.empty();
         }
     }
 
@@ -130,8 +90,8 @@ public final class V {
                 return next;
             }
             // assert: if no next -> next == null
-            if (knows(next, Map.class)) {
-                curr = one(next, new TypeReference<Map<String, Object>>() {});
+            if (one(next, Map.class).isPresent()) {
+                curr = one(next, new TypeReference<Map<String, ?>>() {}).get();
             } else {
                 return null; // no such paths
             }

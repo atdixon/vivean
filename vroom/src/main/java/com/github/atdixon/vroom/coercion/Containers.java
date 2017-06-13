@@ -49,7 +49,7 @@ public final class Containers {
             || Optional.class.equals(type);
     }
 
-    public static boolean isContainer(Object value) { // todo: test array, collection, iterable, etc
+    public static boolean isContainerValue(Object value) {
         return value != null && isContainer(value.getClass());
     }
 
