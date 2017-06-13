@@ -6,7 +6,7 @@
     <parent>
         <artifactId>vivean-parent</artifactId>
         <groupId>com.github.atdixon</groupId>
-        <version>0.4.0-beta</version>
+        <version>0.4.1-beta-SNAPSHOT</version>
     </parent>
 
     <artifactId>vivean-bench</artifactId>

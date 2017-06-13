@@ -19,7 +19,7 @@
 
     <groupId>com.github.atdixon</groupId>
     <artifactId>vivean-parent</artifactId>
-    <version>0.4.0-beta</version>
+    <version>0.4.1-beta-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>vivean Parent POM</name>
@@ -46,7 +46,7 @@
         <connection>scm:git:git@github.com:atdixon/vivean.git</connection>
         <developerConnection>scm:git:git@github.com:atdixon/vivean.git</developerConnection>
         <url>git@github.com:atdixon/vivean.git</url>
-        <tag>vivean-parent-0.4.0-beta</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <modules>
