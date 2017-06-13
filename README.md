@@ -7,7 +7,7 @@ Available in Maven Central. Use:
     <dependency>
         <groupId>com.github.atdixon</groupId>
         <artifactId>vivean</artifactId>
-        <version>0.3.13</version>
+        <version>0.4.0-beta</version>
     </dependency>
 
 ##### Benchmark
